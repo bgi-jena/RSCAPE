@@ -1,11 +1,11 @@
-Package: myPackageId
-Title: one line title  
-Version: 0.5.227
-Date: 2012-06-22
-Author: Thomas Wutzler
-Maintainer: Thomas Wutzler <twutz@bgc-jena.mpg.de>
-Description: longer description
-Depends: R (>= 1.14.0)
-Suggests: testthat
+Package: RSCAPE
+Title: R SCAPE package
+Version: 0.0.0
+Date: 2013-05-06
+Author: Fabian Gans
+Maintainer: Fabian Gans <fgans@bgc-jena.mpg.de>
+Description: Package for applying the SCAPE method to estimate soil Q10 values as described in ... 
+Depends: R (>= 2.14.0), spectral.methods
+Suggests: 
 License: GPL-2
 LazyLoad: yes
