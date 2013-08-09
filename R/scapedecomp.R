@@ -1,5 +1,5 @@
 #     R-Code to calculate Q10-value based on SCAPE
-#     Copyright (C) 2013  Fabian Gans
+#     Copyright (C) 2013  Fabian Gans, Miguel Mahecha
 # 
 #     This program is free software: you can redistribute it and/or modify
 #     it under the terms of the GNU General Public License as published by
@@ -20,23 +20,23 @@ scapedecomp=function(
   x, ##<< numeric vector: time series
   sf, ##<< numeric: sampling frequency (samples per day)
   fborder, ##<< numeric: boundary time scale (in days)
-  Ms=c(90,30), ##<< vector: SSA window length (only applicable for SSA)
-  method="Fourier" ##<< String: decomposition methodm can be "SSA", "EMD", "Fourier" or "MA"
+  Ms=90, ##<< vector: SSA window length (only applicable for SSA)
+  method="Fourier" ##<< String: decomposition methodm can be "SSA", "EMD", "Fourier", "Spline" or "MA"
 ) {
   ##details<<
   ## This function decomposes the time series into a low frequency and a high frequency component while making 
   ## sure that both components added together result agasin in the original signal. 
   
   ##author<<
-  ##Fabian Gans, MPI BGC Jena, Germany, fgans@bgc-jena.mpg.de
+  ##Fabian Gans, Miguel D. Mahecha, MPI BGC Jena, Germany, fgans@bgc-jena.mpg.de mmahecha@bgc-jena.mpg.de
   l<-length(x)
-  browser()
+  
+  # frequencies to extract
+  borders.wl      <- data.frame(s0 = c(fborder, Inf), # annual freq
+                                s1 = c(0, fborder))*sf    # rest
+  
   if (method=="SSA") {
     library("Rssa")
-    
-    # frequencies to extract
-    borders.wl      <- data.frame(s0 = c(fborder, Inf), # annual freq
-                                  s1 = c(0, fborder))*sf    # rest
     
     # number of components for reconstruction
     n.comp          <- c(100, 100)
@@ -54,10 +54,11 @@ scapedecomp=function(
     var.thresh.ratio<- 0.05
     
     # corresponding embedding dimensions
-    M              <- c(floor(min(Ms[1]*sf,l/3)), floor(Ms[2]*sf))
+    if (Ms==-1) M=l/2.5
+    M              <- c(floor(min(Ms[1]*sf,l/3)), floor(Ms[1]*sf/3))
     
     # decompose the time series    
-    dat.dec    <- FilterTSeriesSSA(x,
+    dat.dec    <- filterTSeriesSSA(x,
                                    borders.wl       = borders.wl,
                                    var.thresh.ratio = var.thresh.ratio,
                                    choose.highest   = choose.highest,
@@ -77,41 +78,55 @@ scapedecomp=function(
     
   } else if (method=="EMD") {
     library("EMD")
-    y<-emd(x,boundary="periodic",sm="spline",spar=3,smlevels=1:20,max.imf=20,plot=TRUE)
+    y<-emd(x,boundary="periodic",sm="spline",spar=3,smlevels=1:20,max.imf=20)
     freqs<-vector(mode="numeric",length=y$nimf)
     dat.dec<-matrix(0,nrow=l,ncol=ncol(borders.wl))
     for (i in 1:y$nimf) {
-      freqs[i]<-1/DetermineFreq(y$imf[,i])
+      freqs[i]<-1/determineFreq(y$imf[,i])
     }
-    i<-2
-    for (i in seq(ncol(borders.wl),2,by=-1)) {
-      colind<-((freqs>borders.wl[1,i]) & (freqs<borders.wl[2,i])) 
-      dat.dec[,i]<-rowSums(y$imf[,colind])
-    }
-    if (ncol(dat.dec)>2) {
-      dat.dec[,1]<-x-rowSums(dat.dec[,2:ncol(dat.dec)])
+    colind<-(freqs<fborder) 
+    if (sum(colind)>1) {
+      dat.dec[,2]<-rowSums(y$imf[,colind])
+    } else if (sum(colind)==1) {
+        dat.dec[,2]<-y$imf[,colind]
     } else {
-      dat.dec[,1]<-x-dat.dec[,2]
+      warning("Caution, EMD could not extract low frequency signal, please choose a lower frequency boundary!")
+      dat.dec[,2]<-y$imf[,1]
     }
+    dat.dec[,1]<-x-dat.dec[,2]
     x <- apply(dat.dec,2,function(z) z-mean(z))
     
   } else if (method=="MA") {
-    library("signal")
-    f<-Ma(rep(1/(fborder*sf),fborder*sf))
+    library("forecast")
     dat.dec<-matrix(0,nrow=l,ncol=ncol(borders.wl))
-    dat.dec[,1]<-filter(f,x)
+    fx<-ma(x,fborder*sf)
+    #Fill edges
+    for (i in 1:(fborder*sf/2)) {
+      fx[i]<-mean(x[1:(i+fborder*sf/2)])
+      fx[l+1-i]<-mean(x[(l+1-i-fborder*sf/2):l])
+    }
+    attributes(fx)<-NULL
+    dat.dec[,1]<-fx
     dat.dec[,2]<-x-dat.dec[,1]
     x <- apply(dat.dec,2,function(z) z-mean(z))
     
   } else if (method=="Fourier") {
+    x<-x-mean(x)
     ffx<-fft(x)
     nborder<-floor(l/fborder/sf)
-    ffx[(nborder+1):(l-nborder)]<-0
-    dat.dec<-matrix(0,nrow=l,ncol=ncol(borders.wl))
-    dat.dec[,1]<-fft(x,inverse=TRUE)
+    ffx[(nborder+2):(l-nborder)]<-0
+    dat.dec<-matrix(0,nrow=l,2)
+    dat.dec[,1]<-Re(fft(ffx,inverse=TRUE))/l
     dat.dec[,2]<-x-dat.dec[,1]
     x <- apply(dat.dec,2,function(z) z-mean(z))
-  }
+  
+  } else if (method=="Spline") {
+    x<-x-mean(x)
+    dat.dec<-matrix(0,nrow=l,2)
+    dat.dec[,1]<-smooth.spline(x,nknots=floor(l/fborder*sf))$y
+    dat.dec[,2]<-x-dat.dec[,1]
+    x <- apply(dat.dec,2,function(z) z-mean(z))
+  } else stop(paste("Invalid decomposition method:",method))
   ##value<< data frame containing low frequency and high frequency parts of the data frame
   return(x)
 }

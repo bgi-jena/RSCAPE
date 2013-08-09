@@ -2,7 +2,7 @@
 \alias{scapedecomp}
 \title{Decompose a signal into given frequency bands }
 \description{Decompose a signal into given frequency bands using SSA, EMD, Fourier or MA-Filter   }
-\usage{scapedecomp(x, sf, fborder, Ms = c(90, 30), method = "Fourier")}
+\usage{scapedecomp(x, sf, fborder, Ms = 90, method = "Fourier")}
 \arguments{
   \item{x}{numeric vector: time series}
   \item{sf}{numeric: sampling frequency (samples per day)}

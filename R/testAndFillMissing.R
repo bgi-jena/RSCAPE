@@ -1,5 +1,5 @@
 #     R-Code to calculate Q10-value based on SCAPE
-#     Copyright (C) 2013  Fabian Gans
+#     Copyright (C) 2013  Fabian Gans, Miguel Mahecha
 # 
 #     This program is free software: you can redistribute it and/or modify
 #     it under the terms of the GNU General Public License as published by
@@ -17,14 +17,16 @@
 testAndFillMissing<-function(
   ##title<< determine if one or both of the time series have gaps and fill them 
   ##description<< Function that tests the respiration and temperature time series for gaps. 
-  DAT ##<< data frame: contains temperature and respiration time series
+  DAT, ##<< data frame: contains temperature and respiration time series
+  sf  ##<< numeric: sampling frequency of the time series
   ) {
   ##details<<
   ## Function that tests the respiration and temperature time series for gaps. 
   ## If gaps are detected, they are filled using SSA. A weight vector will be created which sets the weight for the filled values to 0
   
   ##author<<
-  ##Fabian Gans, MPI BGC Jena, Germany, fgans@bgc-jena.mpg.de
+  ##Fabian Gans, Miguel D. Mahecha, MPI BGC Jena, Germany, fgans@bgc-jena.mpg.de mmahecha@bgc-jena.mpg.de
+  library(zoo)
   DAT               <- na.trim(DAT, sides = c("both"), is.na = c("any"))
   DAT$weights       <- 1
   
