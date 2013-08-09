@@ -40,7 +40,7 @@ testAndFillMissing<-function(
   }
   
   if (sum(is.na(DAT$temperature))>0) {
-    obj.fill                     <- GapfillSSA(DAT$te, M = (sf*3*30), remove.infinite = TRUE)
+    obj.fill                     <- gapfillSSA(DAT$te, M = (sf*3*30), remove.infinite = TRUE)
     DAT$temperature_raw          <- DAT$temperature
     DAT$temperature              <- obj.fill$filled.series
     DAT$weights[is.na(DAT$temperature_raw)]<-0
@@ -57,7 +57,7 @@ testAndFillMissing<-function(
   }
   if (sum(is.na(DAT$re))>0) {
     library("Rssa")
-    obj.fill              <- GapfillSSA(DAT$re, M = (sf*3*30), remove.infinite = TRUE)
+    obj.fill              <- gapfillSSA(DAT$re, M = (sf*3*30), remove.infinite = TRUE)
     DAT$respiration_raw   <- DAT$respiration
     DAT$respiration       <- obj.fill$filled.series
     DAT$weights[is.na(DAT$respiration_raw)]<-0

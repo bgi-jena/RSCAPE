@@ -32,7 +32,7 @@
 ###################################################################################
 
 ## rank ordering to rescale process to distribution
-rescale <- function(X,Y,method=c("shell")){
+.rescale <- function(X,Y,method=c("shell")){
   ## rescale X to have distribution from Y
   ## rank-oder Y and rank-order X. Substitute the X values with the Y values and undo the sort
   X[sort(X,index=T,method=method)$ix] <- sort(Y,method=method)
@@ -124,7 +124,7 @@ iAAFT <- function(Xcor,Xdist=Xcor,tolerance=0.01,maxit=100,adjust.var=TRUE,
       s <- fft(complex(modulus=Mod(S),argument=Arg(R)),inverse=TRUE)/n
       
       ## rescale s to have the proper distribution 
-      r.new <- rescale(Re(s),c,method=method)
+      r.new <- .rescale(Re(s),c,method=method)
 
       ## calculate a convercgence criteria
       ## criterion acf
@@ -186,7 +186,7 @@ AAFT <- function(X,method=c("shell")){
   gauss <- rnorm(n)
   
   ## transform the Xdist to gaussian
-  X.gauss <- rescale(X,gauss,method=method)
+  X.gauss <- .rescale(X,gauss,method=method)
 
   ## FFT the gaussian version
   X.fft <- fft(X.gauss)
@@ -198,7 +198,7 @@ AAFT <- function(X,method=c("shell")){
   X.back <- fft(complex(modulus=Mod(X.fft),argument=phases.rand),inverse=TRUE)/n
 
   ## rescale back
-  X.rescaled <- rescale(Re(X.back),X,method=method)
+  X.rescaled <- .rescale(Re(X.back),X,method=method)
 
   ## return the desired series
   return(list(x=X.rescaled))

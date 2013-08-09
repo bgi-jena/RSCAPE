@@ -36,7 +36,7 @@ scapedecomp=function(
                                 s1 = c(0, fborder))*sf    # rest
   
   if (method=="SSA") {
-    library("Rssa")
+    library("spectral.methods")
     
     # number of components for reconstruction
     n.comp          <- c(100, 100)
@@ -78,11 +78,12 @@ scapedecomp=function(
     
   } else if (method=="EMD") {
     library("EMD")
+    library("spectral.methods")
     y<-emd(x,boundary="periodic",sm="spline",spar=3,smlevels=1:20,max.imf=20)
     freqs<-vector(mode="numeric",length=y$nimf)
     dat.dec<-matrix(0,nrow=l,ncol=ncol(borders.wl))
     for (i in 1:y$nimf) {
-      freqs[i]<-1/determineFreq(y$imf[,i])
+      freqs[i]<-1/calcFrequency(y$imf[,i])
     }
     colind<-(freqs<fborder) 
     if (sum(colind)>1) {

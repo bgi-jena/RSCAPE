@@ -50,15 +50,19 @@ evalQ10<-function(
   # Then do spectral decomposition of the prediction
   
   #Decompose original resp
-  x<-scapedecomp(x=rho,sf=sf,fborder=fborder,method=method,Ms=M)
-  rho_hf<-x[,2]
+  x<-scapedecomp(x=respiration,sf=sf,fborder=fborder,method=method,Ms=M)
+  resp_hf<-x[,2]
   #Decompoes SCAPE predicted respiration
-  x<-scapedecomp(x=rho_pred,sf=sf,fborder=fborder,method=method,Ms=M)
-  rho_pred_hf<-x[,2]
+  x<-scapedecomp(x=SCAPE_res$DAT$SCAPE_R_pred,sf=sf,fborder=fborder,method=method,Ms=M)
+  resp_pred_hf<-x[,2]
   #Decompoes SCAPE conventional predicted respiration
-  x<-scapedecomp(x=rho_pred_conv,sf=sf,fborder=fborder,method=method,Ms=M)
-  rho_pred_conv_hf<-x[,2]
+  x<-scapedecomp(x=SCAPE_res$DAT$Conv_R_pred,sf=sf,fborder=fborder,method=method,Ms=M)
+  rresp_pred_conv_hf<-x[,2]
   
+  
+  if (nss>0) {
+    rho_pred_sur_hf <- aaply(.data=SCAPE_res$SCAPE_Rpred_surr,.fun=scapedecomp,.margins=c(1,2),sf=sf,fborder=fborder,Ms=M,method=method)[,,,2]
+  }
   
   
   sq   <-function(x) return(x*x)
@@ -68,10 +72,22 @@ evalQ10<-function(
   results               <- list()
   results$SCAPE         <- list()
   results$Conv          <- list()
-  results$SCAPE$RMSE    <- rmse(rho_hf,rho_pred_hf)
-  results$SCAPE$R2      <- r2(rho_hf,rho_pred_hf)
-  results$Conv$RMSE     <- rmse(rho_hf,rho_pred_conv_hf)
-  results$Conv$R2      <- r2(rho_hf,rho_pred_conv_hf)
+  results$SCAPE$RMSE    <- rmse(resp_hf,resp_pred_hf)
+  results$SCAPE$R2      <- r2(resp_hf,resp_pred_hf)
+  results$Conv$RMSE     <- rmse(resp_hf,resp_pred_conv_hf)
+  results$Conv$R2       <- r2(resp_hf,resp_pred_conv_hf)
+  
+  if (nss>0) {
+    results$surrogates      <- list()
+    results$surrogates$R2   <- array(NA,c(nss,nss))
+    results$surrogates$RMSE <- array(NA,c(nss,nss))
+    for (i in 1:nss) {
+      for (j in 1:nss) {
+        results$surrogates$R2[i,j]   <- r2(resp_hf,resp_pred_sur_hf[i,j,])
+        results$surrogates$RMSE[i,j] <- rmse(resp_hf,resp_pred_sur_hf[i,j,])
+      }
+    }
+  }
   
   
   ##value<< List with evaluation metrics

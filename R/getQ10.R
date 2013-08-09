@@ -35,15 +35,16 @@ getQ10<-function(
 ##Function to determine the temperature sensitivity ($Q_{10}$ value) and time varying basal efflux (R$_b$) from a given temperature and efflux (usually respiration) time series. 
 ##Conventionally, the following model is used in the literature:
 ##
-##  Resp(i) = R_b Q_{10}^(\frac{T(i)-Tref}{\gamma}),
+##  Resp(i) = R_b Q_{10}^((T(i)-Tref)/(gamma),
 ##
-##where $i$ is the time index. It has been shown, however, that this model is misleading when $R_b$ is varying over time which can be expected in many real world examples (e.g. Sampson et al. 2008). 
+##where $i$ is the time index. It has been shown, however, that this model is misleading when $R_b$ is varying over time which can be expected in many real world examples (e.g. Sampson et al. 2008).
 ##
-##If $R_b$ varies slowly, i.e. with some low frequency then the “scale dependent parameter estimation, SCAPE” allows us to identify this oscillatory pattern. As a consequence, the estimation of $Q_{10}$ can be substantially stabilized (Mahecha et al. 2010). The model becomes 
+##If $R_b$ varies slowly, i.e. with some low frequency then the “scale dependent parameter estimation, SCAPE” 
+##allows us to identify this oscillatory pattern. As a consequence, the estimation of $Q_{10}$ can be substantially stabilized (Mahecha et al. 2010). The model becomes 
 ##
-##Resp(i) = R_b(i)Q_{10}^(\frac{T(i)-Tref}{\gamma}),
+##Resp(i) = R_b(i)Q_{10}^((T(i)-Tref)/(gamma),
 ##
-##where $R_b(i)$ is the time varying “basal respiration”, i.e. the respiration expected at $Tref$. The convenience function getQ10 allows to extract the $Q_{10}$ value minimizing the confounding factor of the time varying $R_b$. Four different spectral methods can be used and compared. A surrogate technique (function by curtsey of Dr. Henning Rust, written in the context of Venema et al. 2006) is applied to propagate the uncertainty due to the decomposition. 
+##where $R_b(i)$ is the time varying “basal respiration”, i.e. the respiration expected at $Tref$. The convenience function getQ10 allows to extract the $Q_{10}$ value minimizing the confounding factor of the time varying $R_b$. Four different spectral methods can be used and compared. A surrogate technique (function by curtsey of Dr. Henning Rust, written in the context of Venema et al. 2006) is applied to propagate the uncertainty due to the decomposition.
 ##
 ##The user is strongly encouraged to use the function with caution, i.e. see critique by Graf et al. (2011).
 

@@ -11,7 +11,7 @@
 If gaps are detected, they are filled using SSA. A weight vector will be created which sets the weight for the filled values to 0}
 
 
-\author{Fabian Gans, MPI BGC Jena, Germany, fgans@bgc-jena.mpg.de
+\author{Fabian Gans, Miguel D. Mahecha, MPI BGC Jena, Germany, fgans@bgc-jena.mpg.de mmahecha@bgc-jena.mpg.de
 Fabian Gans}
 
 
