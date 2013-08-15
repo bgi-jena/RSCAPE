@@ -14,7 +14,7 @@
 #     You should have received a copy of the GNU General Public License
 #     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-getQ10<-function(
+getQ10 <-function(
   ##title<< Estimate $Q_{10}$ value and time varying $R_b$ from temperature and efflux time series including uncertainty.
   ##description<< Function to determine the temperature sensitivity ($Q_{10}$ value) and time varying 
   ## basal efflux (R$_b(i)$) from a given temperature and efflux (usually respiration) time series 
@@ -29,7 +29,8 @@ getQ10<-function(
   nss=0, ##<< numeric vector: number of surrogate samples 
   method="SSA", ##<< String: method to be applied for signal decomposition (choose from "Fourier","SSA","MA","EMD","Spline")
   gapFilling=TRUE, ##<< Logical: Choose whether Gap-Filling should be applied
-  plot=FALSE ##<< Logical: Choose whether Surrogates should be plotted
+  plot=FALSE, ##<< Logical: Choose whether Surrogates should be plotted
+  flag = array(1, length = length(respiration))
 ) 
 ##details<<
 ##Function to determine the temperature sensitivity ($Q_{10}$ value) and time varying basal efflux (R$_b$) from a given temperature and efflux (usually respiration) time series. 
@@ -69,13 +70,15 @@ getQ10<-function(
   if (sum(DAT$respiration<0)>0) {
     warning("Some respiration data values are below 0. Please check your dataset.")
   }
+  # define the weights
   DAT$weights[DAT$respiration <= 0] <- 0
+  DAT$weights[flag != 1] <- 0
   DAT$respiration[DAT$respiration <= 0] <-  quantile(DAT$respiration[DAT$respiratio>0],0.01)                 # make sure there are no nonsense values
   
   
   DAT$tau<-(DAT$temperature -Tref)/gam  # Define tau and rho which are decomposed
   DAT$rho<-log(DAT$respiration)
-
+  
   output<-list()
   
   output$settings            <-  list()
@@ -87,7 +90,7 @@ getQ10<-function(
   output$settings$nss        <-  nss
   output$settings$method     <-  method
   output$settings$gapFilling <-  gapFilling
-
+  
   #Decompose temperature
   x<-scapedecomp(x=DAT$tau,sf=sf,fborder=fborder,method=method,Ms=M)
   DAT$tau.dec.lf<-x[,1]
@@ -107,26 +110,26 @@ getQ10<-function(
   
   #Generate Ensemble of surrogate base-respiration data
   if (nss>0) {
-    sur.rho.hf<-iAAFTSurrogateEnsemble(DAT$rho.dec.hf,nss)
-    sur.rho<-array(data=rep(DAT$rho.dec.lf,nss),dim=c(nrow(DAT),nss))+sur.rho.hf+mean(DAT$rho)
-  
-    sur.tau.hf<-iAAFTSurrogateEnsemble(DAT$tau.dec.hf,nss)
-    sur.tau<-array(data=rep(DAT$tau.dec.lf,nss),dim=c(nrow(DAT),nss))+sur.tau.hf+mean(DAT$tau)
-  
-    ens.dec<-aaply(.data=sur.rho,.fun=scapedecomp,.margins=2,sf=sf,fborder=fborder,Ms=M,method=method)
-    ens.rho.dec.lf<-t(ens.dec[,,1])
-    ens.rho.dec.hf<-array(data=rep(DAT$rho,nss),dim=c(nrow(DAT),nss))-ens.rho.dec.lf
-    ens.rho.dec.hf <- apply(ens.rho.dec.hf,2,function(z) z-mean(z))
-  
-    ens.dec<-aaply(.data=sur.tau,.fun=scapedecomp,.margins=2,sf=sf,fborder=fborder,Ms=M,method=method)
-    ens.tau.dec.lf<-t(ens.dec[,,1])
-    ens.tau.dec.hf<-array(data=rep(DAT$tau,nss),dim=c(nrow(DAT),nss))-ens.tau.dec.lf
-    ens.tau.dec.hf <- apply(ens.tau.dec.hf,2,function(z) z-mean(z))
-
+    sur.rho.hf <- iAAFTSurrogateEnsemble(DAT$rho.dec.hf,nss)
+    sur.rho <- array(data=rep(DAT$rho.dec.lf,nss),dim=c(nrow(DAT),nss))+sur.rho.hf+mean(DAT$rho)
     
-    output$SCAPE_Q10_surr<-array(data=0,dim=c(nss,nss))
-    output$SCAPE_Rb_surr<-array(data=0,dim=c(nss,nss,nrow(DAT)))
-    output$SCAPE_Rpred_surr<-array(data=0,dim=c(nss,nss,nrow(DAT)))
+    sur.tau.hf <- iAAFTSurrogateEnsemble(DAT$tau.dec.hf,nss)
+    sur.tau <- array(data=rep(DAT$tau.dec.lf,nss),dim=c(nrow(DAT),nss))+sur.tau.hf+mean(DAT$tau)
+    
+    ens.dec <- aaply(.data=sur.rho,.fun=scapedecomp,.margins=2,sf=sf,fborder=fborder,Ms=M,method=method)
+    ens.rho.dec.lf <- t(ens.dec[,,1])
+    ens.rho.dec.hf <- array(data=rep(DAT$rho,nss),dim=c(nrow(DAT),nss))-ens.rho.dec.lf
+    ens.rho.dec.hf <- apply(ens.rho.dec.hf,2,function(z) z-mean(z))
+    
+    ens.dec<-aaply(.data=sur.tau,.fun=scapedecomp,.margins=2,sf=sf,fborder=fborder,Ms=M,method=method)
+    ens.tau.dec.lf <- t(ens.dec[,,1])
+    ens.tau.dec.hf <- array(data=rep(DAT$tau,nss),dim=c(nrow(DAT),nss))-ens.tau.dec.lf
+    ens.tau.dec.hf <- apply(ens.tau.dec.hf,2,function(z) z-mean(z))
+    
+    
+    output$SCAPE_Q10_surr <- array(data=0,dim=c(nss,nss))
+    output$SCAPE_Rb_surr <- array(data=0,dim=c(nss,nss,nrow(DAT)))
+    output$SCAPE_Rpred_surr <- array(data=0,dim=c(nss,nss,nrow(DAT)))
     for (i in 1:nss) {
       for (j in 1:nss) {
         output$SCAPE_Q10_surr[i,j]    <- exp(lm(ens.rho.dec.hf[,i]~ens.tau.dec.hf[,j],weights=DAT$weights)$coefficients[2])
@@ -135,24 +138,25 @@ getQ10<-function(
       }
     }
     output$surrogates<-list()
-    output$surrogates$rho.dec.lf<-ens.rho.dec.lf
-    output$surrogates$rho.dec.hf<-ens.rho.dec.hf
-    output$surrogates$tau.dec.lf<-ens.tau.dec.lf
-    output$surrogates$tau.dec.hf<-ens.tau.dec.hf
+    output$surrogates$rho.dec.lf <- ens.rho.dec.lf
+    output$surrogates$rho.dec.hf <- ens.rho.dec.hf
+    output$surrogates$tau.dec.lf <- ens.tau.dec.lf
+    output$surrogates$tau.dec.hf <- ens.tau.dec.hf
   }
   
   
   # No surrogates but taking confidence interval of linear fit
-  lmres<-lm(DAT$rho.dec.hf~DAT$tau.dec.hf,weights=DAT$weights)
-  output$SCAPE_Q10<-exp(lmres$coefficients[2])
-  names(output$SCAPE_Q10)<-"Q10"
-  output$SCAPE_Q10_regression_confint<-exp(confint(lmres)[2,])
+  lmres <- lm(DAT$rho.dec.hf~DAT$tau.dec.hf,weights=DAT$weights)
+  output$SCAPE_Q10 <- exp(lmres$coefficients[2])
+  names(output$SCAPE_Q10) <- "Q10"
+  output$SCAPE_Q10_regression_confint <- exp(confint(lmres)[2,])
   
   # Another comparison, calculate Q10 with linear fit using logarithmic formula
-  lmres2<-lm(DAT$rho~DAT$tau,weights=DAT$weights)
-  output$Conv_Q10<-exp(lmres2$coefficients[2])
-  output$Conv_Rb<-rep(exp(lmres2$coefficients[1]),nrow(DAT))
-  names(output$Conv_Q10)<-"Q10"
+  lmres2 <- lm(DAT$rho~DAT$tau,weights=DAT$weights)
+  output$Conv_Q10 <- exp(lmres2$coefficients[2])
+  output$Conv_Rb <- rep(exp(lmres2$coefficients[1]),nrow(DAT))
+  names(output$Conv_Q10) <- "Q10"
+  output$Conv_Q10_regression_confint <- exp(confint(lmres2)[2,])
   
   # For comparison estimate Q10 by nonlinear model without decomposition
   #try( {
@@ -164,9 +168,9 @@ getQ10<-function(
   #})
   
   
-  output$SCAPE_Rb<-getRb(DAT$tau.dec.lf,DAT$rho.dec.lf,DAT$rho,DAT$tau,output$SCAPE_Q10)
-  DAT$SCAPE_R_pred<-output$SCAPE_Rb*output$SCAPE_Q10^((DAT$temperature-Tref)/gam)
-  DAT$Conv_R_pred<-output$Conv_Rb*output$Conv_Q10^((DAT$temperature-Tref)/gam)
+  output$SCAPE_Rb  <- getRb(DAT$tau.dec.lf,DAT$rho.dec.lf,DAT$rho,DAT$tau,output$SCAPE_Q10)
+  DAT$SCAPE_R_pred <- output$SCAPE_Rb*output$SCAPE_Q10^((DAT$temperature-Tref)/gam)
+  DAT$Conv_R_pred  <- output$Conv_Rb*output$Conv_Q10^((DAT$temperature-Tref)/gam)
   #output$MEF<-MEFW(DAT$respiration_pred,DAT$respiration,w=DAT$weights)
   
   output$DAT<-DAT
