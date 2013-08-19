@@ -29,8 +29,7 @@ getQ10 <-function(
   nss=0, ##<< numeric vector: number of surrogate samples 
   method="SSA", ##<< String: method to be applied for signal decomposition (choose from "Fourier","SSA","MA","EMD","Spline")
   gapFilling=TRUE, ##<< Logical: Choose whether Gap-Filling should be applied
-  plot=FALSE, ##<< Logical: Choose whether Surrogates should be plotted
-  flag = array(1, length = length(respiration))
+  plot=FALSE ##<< Logical: Choose whether Surrogates should be plotted
 ) 
 ##details<<
 ##Function to determine the temperature sensitivity ($Q_{10}$ value) and time varying basal efflux (R$_b$) from a given temperature and efflux (usually respiration) time series. 
@@ -72,7 +71,6 @@ getQ10 <-function(
   }
   # define the weights
   DAT$weights[DAT$respiration <= 0] <- 0
-  DAT$weights[flag != 1] <- 0
   DAT$respiration[DAT$respiration <= 0] <-  quantile(DAT$respiration[DAT$respiratio>0],0.01)                 # make sure there are no nonsense values
   
   

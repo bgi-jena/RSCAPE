@@ -21,7 +21,7 @@ scapedecomp=function(
   sf, ##<< numeric: sampling frequency (samples per day)
   fborder, ##<< numeric: boundary time scale (in days)
   Ms=90, ##<< vector: SSA window length (only applicable for SSA)
-  method="Fourier" ##<< String: decomposition methodm can be "SSA", "EMD", "Fourier", "Spline" or "MA"
+  method="Fourier" ##<< String: decomposition methodm can be "SSA", "EMD", "Fourier", "Spline", "MA", "wavMODWT
 ) {
   ##details<<
   ## This function decomposes the time series into a low frequency and a high frequency component while making 
@@ -29,7 +29,7 @@ scapedecomp=function(
   
   ##author<<
   ##Fabian Gans, Miguel D. Mahecha, MPI BGC Jena, Germany, fgans@bgc-jena.mpg.de mmahecha@bgc-jena.mpg.de
-  l<-length(x)
+  l <-length(x)
   
   # frequencies to extract
   borders.wl      <- data.frame(s0 = c(fborder, Inf), # annual freq
@@ -74,16 +74,17 @@ scapedecomp=function(
     
     
     dat.dec<-t(dat.dec$dec.series)
-    x <- apply(dat.dec,2,function(z) z-mean(z))
+    x <- apply(dat.dec, 2, function(z) z-mean(z))
     
+	
   } else if (method=="EMD") {
     library("EMD")
     library("spectral.methods")
-    y<-emd(x,boundary="periodic",sm="spline",spar=3,smlevels=1:20,max.imf=20)
-    freqs<-vector(mode="numeric",length=y$nimf)
-    dat.dec<-matrix(0,nrow=l,ncol=ncol(borders.wl))
+    y       <- emd(x,boundary="periodic",sm="spline",spar=3,smlevels=1:20,max.imf=20)
+    freqs   <- vector(mode="numeric",length=y$nimf)
+    dat.dec <- matrix(0,nrow=l,ncol=ncol(borders.wl))
     for (i in 1:y$nimf) {
-      freqs[i]<-1/calcFrequency(y$imf[,i])
+      freqs[i] <- 1/calcFrequency(y$imf[,i])
     }
     colind<-(freqs<fborder) 
     if (sum(colind)>1) {
@@ -95,8 +96,9 @@ scapedecomp=function(
       dat.dec[,2]<-y$imf[,1]
     }
     dat.dec[,1]<-x-dat.dec[,2]
-    x <- apply(dat.dec,2,function(z) z-mean(z))
+    x <- apply(dat.dec, 2, function(z) z-mean(z))
     
+	
   } else if (method=="MA") {
     library("forecast")
     dat.dec<-matrix(0,nrow=l,ncol=ncol(borders.wl))
@@ -110,7 +112,8 @@ scapedecomp=function(
     dat.dec[,1]<-fx
     dat.dec[,2]<-x-dat.dec[,1]
     x <- apply(dat.dec,2,function(z) z-mean(z))
-    
+  
+  
   } else if (method=="Fourier") {
     x<-x-mean(x)
     ffx<-fft(x)
@@ -121,13 +124,42 @@ scapedecomp=function(
     dat.dec[,2]<-x-dat.dec[,1]
     x <- apply(dat.dec,2,function(z) z-mean(z))
   
+  
   } else if (method=="Spline") {
     x<-x-mean(x)
-    dat.dec<-matrix(0,nrow=l,2)
-    dat.dec[,1]<-smooth.spline(x,nknots=floor(l/fborder*sf))$y
-    dat.dec[,2]<-x-dat.dec[,1]
-    x <- apply(dat.dec,2,function(z) z-mean(z))
-  } else stop(paste("Invalid decomposition method:",method))
+    dat.dec <- matrix(0,nrow=l,2)
+    dat.dec[,1] <- smooth.spline(x,nknots=floor(l/fborder*sf))$y
+    dat.dec[,2] <- x-dat.dec[,1]
+    x <- apply(dat.dec,2, function(z) z-mean(z))
+	
+	
+  } else if (method == "wavMODWT") {
+    library("wmtsa")
+    library("spectral.methods")
+    x <- x - mean(x)
+	y <- wavShift(wavMODWT(x, wavelet = "s8", n.levels=6, keep.series=TRUE))
+	freqs   <- vector(mode="numeric", length = (length(y$data)))
+    dat.dec <- matrix(0, nrow = l, ncol = ncol(borders.wl))
+	decomp.wavMODWT <- array(NA, c(l, length(y$data)))
+    for (i in 1:length(y$data)) {
+      decomp.wavMODWT[, i] <- unlist(y$data[i])
+    } 
+    for (i in 1:length(y$data)) {
+      freqs[i] <- 1/calcFrequency(decomp.wavMODWT[, i])
+    }
+    colind <- (freqs < fborder) 
+    if (sum(!colind) > 1) {
+      dat.dec[, 1] <- rowSums(decomp.wavMODWT[, !colind])
+    } else if (sum(!colind)==1) {
+        dat.dec[, 1] <- decomp.wavMODWT[, colind]
+    } else {
+      warning("Caution, discrete wavelet transform did not extract low frequency signal, please choose a lower frequency boundary!")
+      dat.dec[, 1] <- decomp.wavMODWT[, length(y$data)]
+    }
+    dat.dec[ , 2] <- x-dat.dec[, 1]
+    x <- apply(dat.dec, 2, function(z) z-mean(z))
+  }
+  else stop(paste("Invalid decomposition method:",method))
   ##value<< data frame containing low frequency and high frequency parts of the data frame
   return(x)
 }

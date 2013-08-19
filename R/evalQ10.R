@@ -98,7 +98,7 @@ evalQ10 <-function(
   }
   
   # Rb evaluation
-  if (!any(is.na(rb))) {
+  if (!any(is.na(Rb))) {
     
     results$Conv$Rb = list()
     results$Conv$Rb$R2  = r2(Rb, SCAPE_res$Conv_Rb)
