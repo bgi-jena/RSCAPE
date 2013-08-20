@@ -56,7 +56,7 @@ scapedecomp=function(
     # corresponding embedding dimensions
     if (Ms==-1) M=l/2.5
     M              <- c(floor(min(Ms[1]*sf,l/3)), floor(Ms[1]*sf/3))
-    
+
     # decompose the time series    
     dat.dec    <- filterTSeriesSSA(x,
                                    borders.wl       = borders.wl,
@@ -80,7 +80,7 @@ scapedecomp=function(
   } else if (method=="EMD") {
     library("EMD")
     library("spectral.methods")
-    y       <- emd(x,boundary="periodic",sm="spline",spar=3,smlevels=1:20,max.imf=20)
+    y       <- emd(x,boundary="none",sm="none",max.imf=20)
     freqs   <- vector(mode="numeric",length=y$nimf)
     dat.dec <- matrix(0,nrow=l,ncol=ncol(borders.wl))
     for (i in 1:y$nimf) {
