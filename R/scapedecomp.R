@@ -31,6 +31,15 @@ scapedecomp=function(
   ##Fabian Gans, Miguel D. Mahecha, MPI BGC Jena, Germany, fgans@bgc-jena.mpg.de mmahecha@bgc-jena.mpg.de
   l <-length(x)
   
+  #Make sure fborder is kind of sensible
+  if (fborder*sf>l/3) {
+    warning("Smoothing time window is larger than a third of time series length, reset to max value")
+    fborder=floor(l/3/sf)
+  } else if (fborder*sf<2) {
+    warning("Smoothing time window is smaller than 2 time steps, reset to min value")
+    fborder=ceiling(2/sf)
+  }
+  
   # frequencies to extract
   borders.wl      <- data.frame(s0 = c(fborder, Inf), # annual freq
                                 s1 = c(0, fborder))*sf    # rest
@@ -128,7 +137,8 @@ scapedecomp=function(
   } else if (method=="Spline") {
     x<-x-mean(x)
     dat.dec <- matrix(0,nrow=l,2)
-    dat.dec[,1] <- smooth.spline(x,nknots=floor(l/fborder*sf))$y
+    nk<-ceiling(l/fborder/sf)
+    dat.dec[,1] <- smooth.spline(x,nknots=nk)$y
     dat.dec[,2] <- x-dat.dec[,1]
     x <- apply(dat.dec,2, function(z) z-mean(z))
 	
