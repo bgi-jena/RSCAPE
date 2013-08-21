@@ -28,7 +28,8 @@ getQ10 <-function(
   M=-1, ##<< numeric vector: size of SSA window (in days)
   nss=0, ##<< numeric vector: number of surrogate samples 
   method="Fourier", ##<< String: method to be applied for signal decomposition (choose from "Fourier","SSA","MA","EMD","Spline")
-  weights=NULL, ##<< numeric vector: vector of weights to be used for linear regression, points can be set to 0 for bad data points
+  weights=NULL, ##<< numeric vector: optional vector of weights to be used for linear regression, points can be set to 0 for bad data points
+  lag=NULL, ##<< numeric vector: optional vector of time lags between respiration and temprature signal
   gapFilling=TRUE, ##<< Logical: Choose whether Gap-Filling should be applied
   plot=FALSE ##<< Logical: Choose whether Surrogates should be plotted
 ) 
@@ -147,19 +148,45 @@ getQ10 <-function(
     output$surrogates$tau.dec.hf <- ens.tau.dec.hf
   }
   
+  calcQ10model<-function(rho,tau,weights,lag) {
+    if (lag>0) {
+      l       <- length(rho)
+      rho     <- rho[(lag+1):l]
+      tau     <- tau[1:(l-lag)]
+      weights <- weights[(lag+1):l] * weights[1:(l-lag)]
+    } else if (lag<0) {
+      l       <- length(rho)
+      rho     <- rho[1:(l+lag)]
+      tau     <- tau[(1-lag):l]
+      weights <- weights[1:(l+lag)] * weights[(1-lag):l]
+    }
+    lmres <- lm(rho~tau,weights=weights)
+    return(list(Q10=exp(lmres$coefficients[2]),Confint=exp(confint(lmres)[2,]),Rb=exp(lmres2$coefficients[1])))
+  }
   
   # No surrogates but taking confidence interval of linear fit
-  lmres <- lm(DAT$rho.dec.hf~DAT$tau.dec.hf,weights=DAT$weights)
-  output$SCAPE_Q10 <- exp(lmres$coefficients[2])
-  names(output$SCAPE_Q10) <- "Q10"
-  output$SCAPE_Q10_regression_confint <- exp(confint(lmres)[2,])
+  lmres_SCAPE <- calcQ10model(DAT$rho.dec.hf,DAT$tau.dec.hf,DAT$weights,0)
+  output$SCAPE_Q10 <- lmres_SCAPE[[1]]
+  output$SCAPE_Q10_regression_confint <- lmres_SCAPE[[2]]
   
   # Another comparison, calculate Q10 with linear fit using logarithmic formula
-  lmres2 <- lm(DAT$rho~DAT$tau,weights=DAT$weights)
-  output$Conv_Q10 <- exp(lmres2$coefficients[2])
-  output$Conv_Rb <- rep(exp(lmres2$coefficients[1]),nrow(DAT))
-  names(output$Conv_Q10) <- "Q10"
-  output$Conv_Q10_regression_confint <- exp(confint(lmres2)[2,])
+  lmres_Conv <- calcQ10model(DAT$rho,DAT$tau,DAT$weights,0)
+  output$Conv_Q10 <- lmres_Conv[[1]]
+  output$Conv_Rb <- lmres_Conv[[3]]
+  output$Conv_Q10_regression_confint <- lmres_Conv[[2]]
+  
+  # Time lagged linear fits
+  if (length(lag>0)) {
+    output$timelagged_results <- array(NA,dim=c(length(lag),5),list(Lag=as.character(lag),Value=c("SCAPE_Q10","SCAPE_Q10_regression_confint","Conv_Q10","Conv_Q10_regression_confint","Conv_Rb")))
+    ilag                      <- 1
+    for (tl in lag) {
+      lmres_SCAPE                      <- calcQ10model(DAT$rho.dec.hf,DAT$tau.dec.hf,DAT$weights,tl)
+      lmres_Conv                       <- calcQ10model(DAT$rho,DAT$tau,DAT$weights,tl)
+      output$timelagged_results[ilag,] <- c(lmres_SCAPE[[1]],lmres_SCAPE[[2]],lmres_Conv[[1]],lmres_Conv[[2]],lmres_Conv[[3]])
+      ilag<-ilag+1
+    }
+  }
+  
   
   # For comparison estimate Q10 by nonlinear model without decomposition
   #try( {
