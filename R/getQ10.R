@@ -27,7 +27,8 @@ getQ10 <-function(
   fborder=30, ##<< numeric: boundary for dividing high- and low-frequency parts (in days)
   M=-1, ##<< numeric vector: size of SSA window (in days)
   nss=0, ##<< numeric vector: number of surrogate samples 
-  method="SSA", ##<< String: method to be applied for signal decomposition (choose from "Fourier","SSA","MA","EMD","Spline")
+  method="Fourier", ##<< String: method to be applied for signal decomposition (choose from "Fourier","SSA","MA","EMD","Spline")
+  weights=NULL, ##<< numeric vector: vector of weights to be used for linear regression, points can be set to 0 for bad data points
   gapFilling=TRUE, ##<< Logical: Choose whether Gap-Filling should be applied
   plot=FALSE ##<< Logical: Choose whether Surrogates should be plotted
 ) 
@@ -50,8 +51,12 @@ getQ10 <-function(
 
 ##author<<
 ##Fabian Gans, Miguel D. Mahecha, MPI BGC Jena, Germany, fgans@bgc-jena.mpg.de mmahecha@bgc-jena.mpg.de
-{  
-  DAT               <- data.frame(temperature,respiration)
+{
+  # Check if weights are given
+  if (length(weights)==0)      weights=rep(1,length(temperature))
+  if ((length(weights)!=length(temperature)) | (length(weights)!=length(respiration))) stop("Error: Input data must have the same length")
+  
+  DAT               <- data.frame(temperature,respiration,weights)
   
   DAT<-testAndFillMissing(DAT,sf)
   

@@ -29,7 +29,6 @@ testAndFillMissing <-function(
   ##Fabian Gans, Miguel D. Mahecha, MPI BGC Jena, Germany, fgans@bgc-jena.mpg.de mmahecha@bgc-jena.mpg.de
   library(zoo)
   DAT               <- na.trim(DAT, sides = c("both"), is.na = c("any"))
-  DAT$weights       <- 1
   
   if (any(is.na(DAT$te))) {
     if (TRUE) {
@@ -57,7 +56,7 @@ testAndFillMissing <-function(
     }
   }
   if (any(is.na(DAT$re))) {
-    library("Rssa")
+    library("spectral.methods")
     obj.fill              <- gapfillSSA(series = DAT$re, M = (sf*3*30), remove.infinite = TRUE)
     DAT$respiration_raw   <- DAT$respiration
     DAT$respiration       <- obj.fill$filled.series
