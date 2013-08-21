@@ -93,7 +93,7 @@ scapedecomp=function(
         dat.dec[,2]<-y$imf[,colind]
     } else {
       warning("Caution, EMD could not extract low frequency signal, please choose a lower frequency boundary!")
-      dat.dec[,2]<-y$imf[,1]
+      dat.dec[,2]<-rep(0,l)
     }
     dat.dec[,1]<-x-dat.dec[,2]
     x <- apply(dat.dec, 2, function(z) z-mean(z))
