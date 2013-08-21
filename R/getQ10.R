@@ -161,7 +161,7 @@ getQ10 <-function(
       weights <- weights[1:(l+lag)] * weights[(1-lag):l]
     }
     lmres <- lm(rho~tau,weights=weights)
-    return(list(Q10=exp(lmres$coefficients[2]),Confint=exp(confint(lmres)[2,]),Rb=exp(lmres2$coefficients[1])))
+    return(list(Q10=exp(lmres$coefficients[2]),Confint=exp(confint(lmres)[2,]),Rb=exp(lmres$coefficients[1])))
   }
   
   # No surrogates but taking confidence interval of linear fit
@@ -177,7 +177,7 @@ getQ10 <-function(
   
   # Time lagged linear fits
   if (length(lag>0)) {
-    output$timelagged_results <- array(NA,dim=c(length(lag),5),list(Lag=as.character(lag),Value=c("SCAPE_Q10","SCAPE_Q10_regression_confint","Conv_Q10","Conv_Q10_regression_confint","Conv_Rb")))
+    output$timelagged_results <- array(NA,dim=c(length(lag),7),list(Lag=as.character(lag),Value=c("SCAPE_Q10","SCAPE_Q10_regression_lower_confint","SCAPE_Q10_regression_higher_confint","Conv_Q10","Conv_Q10_regression_lower_confint","Conv_Q10_regression_higher_confint","Conv_Rb")))
     ilag                      <- 1
     for (tl in lag) {
       lmres_SCAPE                      <- calcQ10model(DAT$rho.dec.hf,DAT$tau.dec.hf,DAT$weights,tl)
