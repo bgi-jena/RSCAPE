@@ -54,6 +54,7 @@ getQ10 <-function(
 ##Fabian Gans, Miguel D. Mahecha, MPI BGC Jena, Germany, fgans@bgc-jena.mpg.de mmahecha@bgc-jena.mpg.de
 {
   # Check if weights are given
+  cat("Checking and preparing data ")
   if (length(weights)==0)      weights=rep(1,length(temperature))
   if ((length(weights)!=length(temperature)) | (length(weights)!=length(respiration))) stop("Error: Input data must have the same length")
   
@@ -66,9 +67,9 @@ getQ10 <-function(
   }
   
   if (mean(DAT$temperature)<150) {
-    print("Assuming temperature is given in deg C")
+    cat("assuming temperature is given in deg C")
   } else {
-    print("Assuming temperature is given in K")
+    cat("assuming temperature is given in K")
     DAT$temperature<-DAT$temperature-273.15
   }
   
@@ -94,7 +95,9 @@ getQ10 <-function(
   output$settings$nss        <-  nss
   output$settings$method     <-  method
   output$settings$gapFilling <-  gapFilling
+  cat(" ok\n")
   
+  cat("Decomposing datasets")
   #Decompose temperature
   x<-scapedecomp(x=DAT$tau,sf=sf,fborder=fborder,method=method,Ms=M)
   DAT$tau.dec.lf<-x[,1]
@@ -104,6 +107,7 @@ getQ10 <-function(
   x<-scapedecomp(x=DAT$rho,sf=sf,fborder=fborder,method=method,Ms=M)
   DAT$rho.dec.lf<-x[,1]
   DAT$rho.dec.hf<-x[,2]
+  cat(" ok\n")
   
   #Define function to calculate Rb
   getRb<-function(tau_lf,rho_lf,rho,tau,Q10) {
@@ -114,12 +118,15 @@ getQ10 <-function(
   
   #Generate Ensemble of surrogate base-respiration data
   if (nss>0) {
+    cat("Generating surrogates")
     sur.rho.hf <- iAAFTSurrogateEnsemble(DAT$rho.dec.hf,nss)
     sur.rho <- array(data=rep(DAT$rho.dec.lf,nss),dim=c(nrow(DAT),nss))+sur.rho.hf+mean(DAT$rho)
     
     sur.tau.hf <- iAAFTSurrogateEnsemble(DAT$tau.dec.hf,nss)
     sur.tau <- array(data=rep(DAT$tau.dec.lf,nss),dim=c(nrow(DAT),nss))+sur.tau.hf+mean(DAT$tau)
+    cat(" ok\n")
     
+    cat("Decomposing surrogates")
     ens.dec <- aaply(.data=sur.rho,.fun=scapedecomp,.margins=2,sf=sf,fborder=fborder,Ms=M,method=method)
     ens.rho.dec.lf <- t(ens.dec[,,1])
     ens.rho.dec.hf <- array(data=rep(DAT$rho,nss),dim=c(nrow(DAT),nss))-ens.rho.dec.lf
@@ -129,8 +136,9 @@ getQ10 <-function(
     ens.tau.dec.lf <- t(ens.dec[,,1])
     ens.tau.dec.hf <- array(data=rep(DAT$tau,nss),dim=c(nrow(DAT),nss))-ens.tau.dec.lf
     ens.tau.dec.hf <- apply(ens.tau.dec.hf,2,function(z) z-mean(z))
+    cat(" ok\n")
     
-    
+    cat("fitting surrogate models")
     output$SCAPE_Q10_surr <- array(data=0,dim=c(nss,nss))
     output$SCAPE_Rb_surr <- array(data=0,dim=c(nss,nss,nrow(DAT)))
     output$SCAPE_Rpred_surr <- array(data=0,dim=c(nss,nss,nrow(DAT)))
@@ -146,6 +154,7 @@ getQ10 <-function(
     output$surrogates$rho.dec.hf <- ens.rho.dec.hf
     output$surrogates$tau.dec.lf <- ens.tau.dec.lf
     output$surrogates$tau.dec.hf <- ens.tau.dec.hf
+    cat(" ok\n")
   }
   
   calcQ10model<-function(rho,tau,weights,lag) {
@@ -161,9 +170,10 @@ getQ10 <-function(
       weights <- weights[1:(l+lag)] * weights[(1-lag):l]
     }
     lmres <- lm(rho~tau,weights=weights)
-    return(list(Q10=exp(lmres$coefficients[2]),Confint=exp(confint(lmres)[2,]),Rb=exp(lmres$coefficients[1])))
+    return(list(Q10=exp(lmres$coefficients[2]),Confint=exp(confint(lmres)[2,2])-exp(confint(lmres)[2,1]),Rb=exp(lmres$coefficients[1])))
   }
   
+  cat("Regression of SCAPE and Conventional method")
   # No surrogates but taking confidence interval of linear fit
   lmres_SCAPE <- calcQ10model(DAT$rho.dec.hf,DAT$tau.dec.hf,DAT$weights,0)
   output$SCAPE_Q10 <- lmres_SCAPE[[1]]
@@ -174,17 +184,26 @@ getQ10 <-function(
   output$Conv_Q10 <- lmres_Conv[[1]]
   output$Conv_Rb <- lmres_Conv[[3]]
   output$Conv_Q10_regression_confint <- lmres_Conv[[2]]
+  cat(" ok\n")
   
   # Time lagged linear fits
   if (length(lag>0)) {
-    output$timelagged_results <- array(NA,dim=c(length(lag),7),list(Lag=as.character(lag),Value=c("SCAPE_Q10","SCAPE_Q10_regression_lower_confint","SCAPE_Q10_regression_higher_confint","Conv_Q10","Conv_Q10_regression_lower_confint","Conv_Q10_regression_higher_confint","Conv_Rb")))
+    cat("Calculating time-lagged results")
+    output$lag_results     <- list()
+    output$lag_results$Q10 <- array(NA,dim=c(length(lag),5),list(Lag=as.character(lag),Value=c("SCAPE_Q10","+/-","Conv_Q10","+/-","Conv_Rb")))
     ilag                      <- 1
     for (tl in lag) {
       lmres_SCAPE                      <- calcQ10model(DAT$rho.dec.hf,DAT$tau.dec.hf,DAT$weights,tl)
       lmres_Conv                       <- calcQ10model(DAT$rho,DAT$tau,DAT$weights,tl)
-      output$timelagged_results[ilag,] <- c(lmres_SCAPE[[1]],lmres_SCAPE[[2]],lmres_Conv[[1]],lmres_Conv[[2]],lmres_Conv[[3]])
+      output$timelagged_results$Q10[ilag,] <- c(lmres_SCAPE[[1]],lmres_SCAPE[[2]]/2,lmres_Conv[[1]],lmres_Conv[[2]]/2,lmres_Conv[[3]])
       ilag<-ilag+1
     }
+    if (nss>0) {
+      output$lag_results$surrogates <- array(NA,dim=c(length(lag),5,nss,nss),list(Lag=as.character(lag),Value=c("SCAPE_Q10","+/-","Conv_Q10","+/-","Conv_Rb"),sur_rho=as.character(1:nss),sur_tau=as.character(1:nss)))
+      browser()
+      
+    }
+    cat(" ok\n")
   }
   
   
@@ -197,12 +216,12 @@ getQ10 <-function(
   #  #output$MEF_simple<-MEFW(DAT$respiration_pred_simple,DAT$respiration,w=DAT$weights)
   #})
   
-  
+  cat("Reconstructing Rb")
   output$SCAPE_Rb  <- getRb(DAT$tau.dec.lf,DAT$rho.dec.lf,DAT$rho,DAT$tau,output$SCAPE_Q10)
   DAT$SCAPE_R_pred <- output$SCAPE_Rb*output$SCAPE_Q10^((DAT$temperature-Tref)/gam)
   DAT$Conv_R_pred  <- output$Conv_Rb*output$Conv_Q10^((DAT$temperature-Tref)/gam)
   #output$MEF<-MEFW(DAT$respiration_pred,DAT$respiration,w=DAT$weights)
-  
+  cat(" ok\n")
   output$DAT<-DAT
   if (plot) {
     if (nss==0) warning("No ensemble plot possible, because number of surrogates is set to 0")
