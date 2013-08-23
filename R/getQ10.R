@@ -195,13 +195,21 @@ getQ10 <-function(
     for (tl in lag) {
       lmres_SCAPE                      <- calcQ10model(DAT$rho.dec.hf,DAT$tau.dec.hf,DAT$weights,tl)
       lmres_Conv                       <- calcQ10model(DAT$rho,DAT$tau,DAT$weights,tl)
-      output$timelagged_results$Q10[ilag,] <- c(lmres_SCAPE[[1]],lmres_SCAPE[[2]]/2,lmres_Conv[[1]],lmres_Conv[[2]]/2,lmres_Conv[[3]])
+      output$lag_results$Q10[ilag,] <- c(lmres_SCAPE[[1]],lmres_SCAPE[[2]]/2,lmres_Conv[[1]],lmres_Conv[[2]]/2,lmres_Conv[[3]])
       ilag<-ilag+1
     }
     if (nss>0) {
-      output$lag_results$surrogates <- array(NA,dim=c(length(lag),5,nss,nss),list(Lag=as.character(lag),Value=c("SCAPE_Q10","+/-","Conv_Q10","+/-","Conv_Rb"),sur_rho=as.character(1:nss),sur_tau=as.character(1:nss)))
-      browser()
-      
+      output$lag_results$surrogate_Q10 <- array(NA,dim=c(length(lag),nss,nss),list(Lag=as.character(lag),sur_rho=as.character(1:nss),sur_tau=as.character(1:nss)))
+      for (i in 1:nss) {
+        for (j in 1:nss) {
+          ilag                      <- 1
+          for (tl in lag) {
+            lmres_SCAPE                      <- calcQ10model(ens.rho.dec.hf[,i],ens.tau.dec.hf[,j],DAT$weights,tl)
+            output$lag_results$surrogate_Q10[ilag,i,j] <- c(lmres_SCAPE[[1]])
+            ilag<-ilag+1
+          }
+        } 
+      }
     }
     cat(" ok\n")
   }
