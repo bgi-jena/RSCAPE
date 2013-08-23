@@ -45,7 +45,7 @@ scapedecomp=function(
                                 s1 = c(0, fborder))*sf    # rest
   
   if (method=="SSA") {
-    library("spectral.methods")
+#    library("spectral.methods")
     
     # number of components for reconstruction
     n.comp          <- c(100, 100)
@@ -87,8 +87,8 @@ scapedecomp=function(
     
 	
   } else if (method=="EMD") {
-    library("EMD")
-    library("spectral.methods")
+#    library("EMD")
+#    library("spectral.methods")
     y       <- emd(x,boundary="none",sm="none",max.imf=20)
     freqs   <- vector(mode="numeric",length=y$nimf)
     dat.dec <- matrix(0,nrow=l,ncol=ncol(borders.wl))
@@ -109,7 +109,7 @@ scapedecomp=function(
     
 	
   } else if (method=="MA") {
-    library("forecast")
+#    library("forecast")
     dat.dec<-matrix(0,nrow=l,ncol=ncol(borders.wl))
     fx<-ma(x,fborder*sf)
     #Fill edges
@@ -144,8 +144,8 @@ scapedecomp=function(
 	
 	
   } else if (method == "wavMODWT") {
-    library("wmtsa")
-    library("spectral.methods")
+#    library("wmtsa")
+#    library("spectral.methods")
     x <- x - mean(x)
 	y <- wavShift(wavMODWT(x, wavelet = "s8", n.levels=6, keep.series=TRUE))
 	freqs   <- vector(mode="numeric", length = (length(y$data)))

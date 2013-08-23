@@ -8,14 +8,14 @@
   \item{sf}{numeric: sampling frequency (samples per day)}
   \item{fborder}{numeric: boundary time scale (in days)}
   \item{Ms}{vector: SSA window length (only applicable for SSA)}
-  \item{method}{String: decomposition methodm can be "SSA", "EMD", "Fourier", "Spline" or "MA"}
+  \item{method}{String: decomposition methodm can be "SSA", "EMD", "Fourier", "Spline", "MA", "wavMODWT}
 }
 \details{This function decomposes the time series into a low frequency and a high frequency component while making 
 sure that both components added together result agasin in the original signal. }
 \value{data frame containing low frequency and high frequency parts of the data frame}
 
 \author{Fabian Gans, Miguel D. Mahecha, MPI BGC Jena, Germany, fgans@bgc-jena.mpg.de mmahecha@bgc-jena.mpg.de
-Fabian Gans}
+Fabian Gans, Miguel Mahecha, Max-Planck-Institute for Biogeochemistry, Jena}
 
 
 

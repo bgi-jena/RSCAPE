@@ -29,7 +29,7 @@ evalQ10 <-function(
   ##  is hence comparing a fraction of the signal with itself. The evaluation wrapper uses the output of 
   ##  the getQ10 model and performs the evaluation based on the spectrally decomposed signals 
   ##  (i.e. in frequency ranges where Rb does not play a direct role), using the same spectral method, 
-  ##  parameterization, and surrogate setting. Metrics used here are …
+  ##  parameterization, and surrogate setting. Metrics used here are 
   
   ##author<<
 ##Fabian Gans, Miguel D. Mahecha, MPI BGC Jena, Germany, fgans@bgc-jena.mpg.de mmahecha@bgc-jena.mpg.de
@@ -57,7 +57,7 @@ evalQ10 <-function(
   x <- scapedecomp(x = SCAPE_res$DAT$SCAPE_R_pred,sf=sf,fborder=fborder,method=method,Ms=M)
   resp_pred_hf <- x[, 2]
   # Decompoes SCAPE conventional predicted respiration
-  x <- scapedecomp( x =SCAPE_res$DAT$Conv_R_pred,sf=sf,fborder=fborder,method=method,Ms=M)
+  x <- scapedecomp(x = SCAPE_res$DAT$Conv_R_pred,sf=sf,fborder=fborder,method=method,Ms=M)
   resp_pred_conv_hf <- x[,2]
   
   if (nss > 0) {

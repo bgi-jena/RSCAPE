@@ -18,7 +18,7 @@ getQ10 <-function(
   ##title<< Estimate $Q_{10}$ value and time varying $R_b$ from temperature and efflux time series including uncertainty.
   ##description<< Function to determine the temperature sensitivity ($Q_{10}$ value) and time varying 
   ## basal efflux (R$_b(i)$) from a given temperature and efflux (usually respiration) time series 
-  ## according the principle of “SCAle dependent Parameter Estimation, SCAPE” (Mahecha et al. 2010).  
+  ## according the principle of "SCAle dependent Parameter Estimation, SCAPE" (Mahecha et al. 2010).  
   temperature, ##<< numeric vector: temperature time series
   respiration, ##<< numeric vector: respiration time series
   sf,   ##<< numeric: sampling rate, number of measurements (per day)
@@ -41,12 +41,12 @@ getQ10 <-function(
 ##
 ##where $i$ is the time index. It has been shown, however, that this model is misleading when $R_b$ is varying over time which can be expected in many real world examples (e.g. Sampson et al. 2008).
 ##
-##If $R_b$ varies slowly, i.e. with some low frequency then the “scale dependent parameter estimation, SCAPE” 
+##If $R_b$ varies slowly, i.e. with some low frequency then the "scale dependent parameter estimation, SCAPE" 
 ##allows us to identify this oscillatory pattern. As a consequence, the estimation of $Q_{10}$ can be substantially stabilized (Mahecha et al. 2010). The model becomes 
 ##
 ##Resp(i) = R_b(i)Q_{10}^((T(i)-Tref)/(gamma),
 ##
-##where $R_b(i)$ is the time varying “basal respiration”, i.e. the respiration expected at $Tref$. The convenience function getQ10 allows to extract the $Q_{10}$ value minimizing the confounding factor of the time varying $R_b$. Four different spectral methods can be used and compared. A surrogate technique (function by curtsey of Dr. Henning Rust, written in the context of Venema et al. 2006) is applied to propagate the uncertainty due to the decomposition.
+##where $R_b(i)$ is the time varying "basal respiration", i.e. the respiration expected at $Tref$. The convenience function getQ10 allows to extract the $Q_{10}$ value minimizing the confounding factor of the time varying $R_b$. Four different spectral methods can be used and compared. A surrogate technique (function by curtsey of Dr. Henning Rust, written in the context of Venema et al. 2006) is applied to propagate the uncertainty due to the decomposition.
 ##
 ##The user is strongly encouraged to use the function with caution, i.e. see critique by Graf et al. (2011).
 
@@ -108,13 +108,7 @@ getQ10 <-function(
   DAT$rho.dec.lf<-x[,1]
   DAT$rho.dec.hf<-x[,2]
   cat(" ok\n")
-  
-  #Define function to calculate Rb
-  getRb<-function(tau_lf,rho_lf,rho,tau,Q10) {
-    rho_lf_tau<-(tau_lf+mean(tau))*log(Q10)
-    return(exp(rho_lf+mean(rho)-rho_lf_tau))
-  }
-  
+    
   
   #Generate Ensemble of surrogate base-respiration data
   if (nss>0) {
@@ -195,7 +189,7 @@ getQ10 <-function(
     for (tl in lag) {
       lmres_SCAPE                      <- calcQ10model(DAT$rho.dec.hf,DAT$tau.dec.hf,DAT$weights,tl)
       lmres_Conv                       <- calcQ10model(DAT$rho,DAT$tau,DAT$weights,tl)
-      output$lag_results$Q10[ilag,] <- c(lmres_SCAPE[[1]],lmres_SCAPE[[2]]/2,lmres_Conv[[1]],lmres_Conv[[2]]/2,lmres_Conv[[3]])
+      output$lag_results$Q10[ilag,]    <- c(lmres_SCAPE[[1]],lmres_SCAPE[[2]]/2,lmres_Conv[[1]],lmres_Conv[[2]]/2,lmres_Conv[[3]])
       ilag<-ilag+1
     }
     if (nss>0) {
@@ -226,8 +220,8 @@ getQ10 <-function(
   
   cat("Reconstructing Rb")
   output$SCAPE_Rb  <- getRb(DAT$tau.dec.lf,DAT$rho.dec.lf,DAT$rho,DAT$tau,output$SCAPE_Q10)
-  DAT$SCAPE_R_pred <- output$SCAPE_Rb*output$SCAPE_Q10^((DAT$temperature-Tref)/gam)
-  DAT$Conv_R_pred  <- output$Conv_Rb*output$Conv_Q10^((DAT$temperature-Tref)/gam)
+  DAT$SCAPE_R_pred <- predictR(output$SCAPE_Rb,output$SCAPE_Q10,DAT$temperature,Tref,gam)
+  DAT$Conv_R_pred  <- predictR(output$Conv_Rb,output$Conv_Q10,DAT$temperature,Tref,gam)
   #output$MEF<-MEFW(DAT$respiration_pred,DAT$respiration,w=DAT$weights)
   cat(" ok\n")
   output$DAT<-DAT

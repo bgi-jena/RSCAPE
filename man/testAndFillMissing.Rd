@@ -12,7 +12,7 @@ If gaps are detected, they are filled using SSA. A weight vector will be created
 
 
 \author{Fabian Gans, Miguel D. Mahecha, MPI BGC Jena, Germany, fgans@bgc-jena.mpg.de mmahecha@bgc-jena.mpg.de
-Fabian Gans}
+Fabian Gans, Miguel Mahecha, Max-Planck-Institute for Biogeochemistry, Jena}
 
 
 

@@ -12,7 +12,7 @@ iAAFTSurrogateEnsemble<-function(
     warning("Could not generate surrogate of constant time series")
     return(t(a))
   }
-  ens<-aaply(.data=a,.margins=2,.fun=RSCAPE::iAAFT,tolerance=0.001,rel.convergence=TRUE)
+  ens<-aaply(.data=a,.margins=2,.fun=iAAFT,tolerance=0.001,rel.convergence=TRUE)
   ##value<< Array containing a ensemble of time series with same distribution an spectrum as the input
   return(t(ens))
 }
