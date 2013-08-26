@@ -14,5 +14,6 @@ iAAFTSurrogateEnsemble<-function(
   }
   ens<-aaply(.data=a,.margins=2,.fun=iAAFT,tolerance=0.001,rel.convergence=TRUE)
   ##value<< Array containing a ensemble of time series with same distribution an spectrum as the input
-  return(t(ens))
+  if (nsamples>1) return(t(ens))
+  return(ens)
 }

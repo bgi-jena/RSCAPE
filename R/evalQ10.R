@@ -51,6 +51,8 @@ evalQ10 <-function(
   rho <- log(SCAPE_res$DAT$respiration) #Define rho from SCAPE prediction
   # Then do spectral decomposition of the prediction
   
+  l<-length(rho)
+  
   # Decompose original resp
   x <- scapedecomp(x = SCAPE_res$DAT$respiration,sf=sf,fborder=fborder,method=method,Ms=M)
   resp_hf <- x[, 2]
@@ -82,6 +84,27 @@ evalQ10 <-function(
   results$SCAPE$RMSE    <- rmse(resp_hf, resp_pred_hf, w)
   results$SCAPE$MEF     <- mef(resp_hf, resp_pred_hf, w)
   
+  if (length(lag>0)) {
+    results$lag        <- list()
+    results$lag$RMSE   <- vector(mode='numeric',length=length(lag))
+    results$lag$MEF    <- vector(mode='numeric',length=length(lag))
+    names(results$lag$RMSE) <- as.character(lag)
+    names(results$lag$MEF)  <- as.character(lag)
+    
+    ilag<-1
+    for (tl in lag) {
+      rb                 <- getRb(tau_lf=SCAPE_res$DAT$tau.dec.lf,rho_lf=SCAPE_res$DAT$rho.dec.lf,
+                         tau=SCAPE_res$DAT$tau,rho=SCAPE_res$DAT$rho,Q10=SCAPE_res$lag_results$Q10[ilag,1])
+      pred               <- predictR(Rb=rb,Q10=SCAPE_res$lag_results$Q10[ilag,1],temperature=SCAPE_res$DAT$temperature,lag=tl,Tref=Tref,gam=gam)
+      x                  <- scapedecomp(x = pred,sf=sf,fborder=fborder,method=method,Ms=M)
+      resp_pred_lag_hf   <- x[, 2]
+      results$RMSE[ilag] <- rmse(resp_hf, resp_pred_lag_hf, w)
+      results$MEF[ilag]  <- mef(resp_hf, resp_pred_lag_hf, w)
+      ilag <- ilag+1
+    }
+    
+  }
+  
   if (nss > 0) {
     results$surrogates      <- list()
     results$surrogates$RMSE <- array(NA, c(nss, nss))
@@ -98,14 +121,14 @@ evalQ10 <-function(
   if (!any(is.na(Rb))) {
     
     results$Conv$Rb = list()
-    results$Conv$Rb$R2  = r2(Rb, SCAPE_res$Conv_Rb)
-    results$Conv$Rb$RMSE = rmse(Rb, SCAPE_res$Conv_Rb)
-    results$Conv$Rb$MEF = mef(Rb, SCAPE_res$Conv_Rb)
+    results$Conv$Rb$R2  = r2(Rb, SCAPE_res$Conv_Rb,w)
+    results$Conv$Rb$RMSE = rmse(Rb, SCAPE_res$Conv_Rb,w)
+    results$Conv$Rb$MEF = mef(Rb, SCAPE_res$Conv_Rb,w)
     
     results$SCAPE$Rb = list()
-    results$SCAPE$Rb$R2  = r2(Rb, SCAPE_res$SCAPE_Rb)
-    results$SCAPE$Rb$RMSE = rmse(Rb, SCAPE_res$SCAPE_Rb)
-    results$SCAPE$Rb$MEF = mef(Rb,  SCAPE_res$SCAPE_Rb)
+    results$SCAPE$Rb$R2  = r2(Rb, SCAPE_res$SCAPE_Rb,w)
+    results$SCAPE$Rb$RMSE = rmse(Rb, SCAPE_res$SCAPE_Rb,w)
+    results$SCAPE$Rb$MEF = mef(Rb,  SCAPE_res$SCAPE_Rb,w)
     
     if (nss > 0) {
       results$surrogates$Rb = list()
@@ -114,9 +137,9 @@ evalQ10 <-function(
       results$surrogates$Rb$MEF = array(NA, c(nss, nss))
       for (i in 1:nss) {
         for (j in 1:nss) {
-          results$surrogates$Rb$R2[i, j] = r2(Rb, as.vector(SCAPE_res$SCAPE_Rb_surr[i, j, ]))
-          results$surrogates$Rb$RMSE[i, j] = rmse(Rb, as.vector(SCAPE_res$SCAPE_Rb_surr[i, j, ]))
-          results$surrogates$Rb$MEF[i, j] = mef(Rb, as.vector(SCAPE_res$SCAPE_Rb_surr[i, j, ]))
+          results$surrogates$Rb$R2[i, j] = r2(Rb, as.vector(SCAPE_res$SCAPE_Rb_surr[i, j, ]),w)
+          results$surrogates$Rb$RMSE[i, j] = rmse(Rb, as.vector(SCAPE_res$SCAPE_Rb_surr[i, j, ]),w)
+          results$surrogates$Rb$MEF[i, j] = mef(Rb, as.vector(SCAPE_res$SCAPE_Rb_surr[i, j, ]),w)
         }
       }
     }

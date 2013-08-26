@@ -30,12 +30,13 @@ predictR<-function(
   ##author<<
   ##Fabian Gans, Miguel D. Mahecha, MPI BGC Jena, Germany, fgans@bgc-jena.mpg.de mmahecha@bgc-jena.mpg.de
   l<-length(temperature)
+  
   if (lag>0) {
-    temperature[lag+1:l]<-temperature[1:l-lag]
+    temperature[(lag+1):l]<-temperature[1:(l-lag)]
     temperature[1:lag]<-NA
   } else if (lag<0) {
-    temperature[1:l+lag]<-temperature[1-lag:l]
-    temperature[l+lag+1:l]<-NA
+    temperature[1:(l+lag)]<-temperature[(1-lag):l]
+    temperature[(l+lag+1):l]<-NA
   }
   ##value<< time series of predicted respiration
   return(Rb*Q10^((temperature-Tref)/gam))
