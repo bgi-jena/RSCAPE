@@ -94,6 +94,7 @@ getQ10 <-function(
   output$settings$M          <-  M
   output$settings$nss        <-  nss
   output$settings$method     <-  method
+  output$settings$lag        <-  lag
   output$settings$gapFilling <-  gapFilling
   cat(" ok\n")
   

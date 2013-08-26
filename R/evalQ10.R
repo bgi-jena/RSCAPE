@@ -43,6 +43,7 @@ evalQ10 <-function(
   SCAPE_res$settings$M          ->  M
   SCAPE_res$settings$nss        ->  nss
   SCAPE_res$settings$method     ->  method
+  SCAPE_res$settings$lag        ->  lag
   SCAPE_res$settings$gapFilling ->  gapFilling
     
   rho_pred <- log(SCAPE_res$DAT$SCAPE_R_pred) #Define rho from SCAPE prediction
@@ -56,12 +57,11 @@ evalQ10 <-function(
   # Decompoes SCAPE predicted respiration
   x <- scapedecomp(x = SCAPE_res$DAT$SCAPE_R_pred,sf=sf,fborder=fborder,method=method,Ms=M)
   resp_pred_hf <- x[, 2]
-  # Decompoes SCAPE conventional predicted respiration
+  # Decompose SCAPE conventional predicted respiration
   x <- scapedecomp(x = SCAPE_res$DAT$Conv_R_pred,sf=sf,fborder=fborder,method=method,Ms=M)
   resp_pred_conv_hf <- x[,2]
   
   if (nss > 0) {
-    # rho_pred_sur_hf <- aaply(.data=SCAPE_res$SCAPE_Rpred_surr,.fun=scapedecomp,.margins=c(1,2),sf=sf,fborder=fborder,Ms=M,method=method)[,,,2]
     resp_pred_sur_hf <- aaply(.data=SCAPE_res$SCAPE_Rpred_surr,.fun=scapedecomp,.margins=c(1,2),sf=sf,fborder=fborder,Ms=M,method=method)[,,,2]
   }
   
