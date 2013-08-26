@@ -67,32 +67,29 @@ evalQ10 <-function(
   
   
   sq   <- function(x) return(x*x)
-  rmse <- function(x1,x2) return(sqrt(mean(sq(x1-x2))))
-  r2   <- function(y,m) return(1-sum(sq(y-m))/sum(sq(y-mean(y))))
-  mef  <- function(x1, x2) return(1-sum((x1-x2)^2)/sum((x1-mean(x1))^2))
+  rmse <- function(x1,x2,w) return(sqrt(weighted.mean(sq(x1-x2),w=w,na.rm=TRUE)))
+  mef  <- function(x1,x2,w) return(1-sum(w*sq(x1-x2),na.rm=TRUE)/sum(w*sq(x1-weighted.mean(x1,w=w,na.rm=TRUE)),na.rm=TRUE))
     
+  w    <- SCAPE_res$DAT$weights/sum(SCAPE_res$DAT$weights,na.rm=TRUE)
+  
   results               <- list()
   results$Conv          <- list()
   results$SCAPE         <- list()
   
-  results$Conv$RMSE     <- rmse(resp_hf, resp_pred_conv_hf)
-  results$Conv$R2       <- r2(resp_hf, resp_pred_conv_hf)
-  results$Conv$MEF      <- mef(resp_hf, resp_pred_conv_hf)
+  results$Conv$RMSE     <- rmse(resp_hf, resp_pred_conv_hf, w)
+  results$Conv$MEF      <- mef(resp_hf, resp_pred_conv_hf, w)
 
-  results$SCAPE$RMSE    <- rmse(resp_hf, resp_pred_hf)
-  results$SCAPE$R2      <- r2(resp_hf, resp_pred_hf)
-  results$SCAPE$MEF     <- mef(resp_hf, resp_pred_hf)
+  results$SCAPE$RMSE    <- rmse(resp_hf, resp_pred_hf, w)
+  results$SCAPE$MEF     <- mef(resp_hf, resp_pred_hf, w)
   
   if (nss > 0) {
     results$surrogates      <- list()
-    results$surrogates$R2   <- array(NA, c(nss, nss))
     results$surrogates$RMSE <- array(NA, c(nss, nss))
     results$surrogates$MEF  <- array(NA, c(nss, nss))
     for (i in 1:nss) {
       for (j in 1:nss) {
-        results$surrogates$R2[i, j]   <- r2(resp_hf, resp_pred_sur_hf[i,j,])
-        results$surrogates$RMSE[i, j] <- rmse(resp_hf, resp_pred_sur_hf[i,j,])
-        results$surrogates$MEF[i, j]  <- mef(resp_hf, resp_pred_sur_hf[i,j,])
+        results$surrogates$RMSE[i, j] <- rmse(resp_hf, resp_pred_sur_hf[i,j,], w)
+        results$surrogates$MEF[i, j]  <- mef(resp_hf, resp_pred_sur_hf[i,j,], w)
       }
     }
   }

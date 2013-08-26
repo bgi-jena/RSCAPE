@@ -140,7 +140,7 @@ getQ10 <-function(
     for (i in 1:nss) {
       for (j in 1:nss) {
         output$SCAPE_Q10_surr[i,j]    <- exp(lm(ens.rho.dec.hf[,i]~ens.tau.dec.hf[,j],weights=DAT$weights)$coefficients[2])
-        output$SCAPE_Rb_surr[i,j,]    <- getRb(ens.tau.dec.lf[,j],ens.rho.dec.lf[,i],sur.rho[,i],sur.tau[,j],output$SCAPE_Q10_surr[i,j])
+        output$SCAPE_Rb_surr[i,j,]    <- getRb(ens.tau.dec.lf[,j],ens.rho.dec.lf[,i],sur.tau[,i],sur.rho[,j],output$SCAPE_Q10_surr[i,j])
         output$SCAPE_Rpred_surr[i,j,] <- output$SCAPE_Rb_surr[i,j,]*output$SCAPE_Q10_surr[i,j]^((DAT$temperature-Tref)/gam)
       }
     }
@@ -220,9 +220,9 @@ getQ10 <-function(
   #})
   
   cat("Reconstructing Rb")
-  output$SCAPE_Rb  <- getRb(DAT$tau.dec.lf,DAT$rho.dec.lf,DAT$rho,DAT$tau,output$SCAPE_Q10)
-  DAT$SCAPE_R_pred <- predictR(output$SCAPE_Rb,output$SCAPE_Q10,DAT$temperature,Tref,gam)
-  DAT$Conv_R_pred  <- predictR(output$Conv_Rb,output$Conv_Q10,DAT$temperature,Tref,gam)
+  output$SCAPE_Rb  <- getRb(DAT$tau.dec.lf,DAT$rho.dec.lf,DAT$tau,DAT$rho,output$SCAPE_Q10)
+  DAT$SCAPE_R_pred <- predictR(output$SCAPE_Rb,output$SCAPE_Q10,DAT$temperature,0,Tref,gam)
+  DAT$Conv_R_pred  <- predictR(output$Conv_Rb,output$Conv_Q10,DAT$temperature,0,Tref,gam)
   #output$MEF<-MEFW(DAT$respiration_pred,DAT$respiration,w=DAT$weights)
   cat(" ok\n")
   output$DAT<-DAT
