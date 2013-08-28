@@ -86,7 +86,10 @@ getQ10 <-function(
   DAT$tau<-(DAT$temperature -Tref)/gam  # Define tau and rho which are decomposed
   DAT$rho<-log(DAT$respiration)
   
-  #if (any(is.na(DAT$rho))) browser()
+  if (any(is.na(DAT$rho))) {
+    dump.frames("debug_info",to.file=TRUE)
+    stop("Error, NA values in rho after file prep! See debug_info for details")
+  }
   
   output<-list()
   
