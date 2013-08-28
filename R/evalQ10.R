@@ -143,6 +143,7 @@ evalQ10 <-function(
     }
   }
   
-  ##value<< List with evaluation metrics
+  ##value<< List with evaluation metrics, the root mean square error and the modelling efficiency are calculated
+  ## << If nss>0 for evaluation metric will be derived for surrogates, too, as well as for time-lagged results. 
   return(results)
 }

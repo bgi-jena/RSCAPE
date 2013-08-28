@@ -48,16 +48,16 @@ testAndFillMissing <-function(
   }
   
   
-  if (any(is.na(DAT$re))) {
+  if (any(is.na(DAT$respiration))) {
     if (TRUE) {
       print("Respiration data has gaps! Trying Gapfilling....")
     } else {
       error("Respiration data has gaps! Please provide a dataset without gaps or enable gapfilling.")
     }
   }
-  if (any(is.na(DAT$re))) {
+  if (any(is.na(DAT$respiration))) {
 #    library("spectral.methods")
-    obj.fill              <- gapfillSSA(series = DAT$re, M = (sf*3*30), remove.infinite = TRUE)
+    obj.fill              <- gapfillSSA(series = DAT$respiration, M = (sf*3*30), remove.infinite = TRUE,seed=1983)
     DAT$respiration_raw   <- DAT$respiration
     DAT$respiration       <- obj.fill$filled.series
     DAT$weights[is.na(DAT$respiration_raw)]<-0

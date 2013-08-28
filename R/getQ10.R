@@ -73,17 +73,20 @@ getQ10 <-function(
     cat("assuming temperature is given in K")
     DAT$temperature<-DAT$temperature-273.15
   }
-  
-  if (sum(DAT$respiration<0)>0) {
+
+  if (sum(DAT$respiration<=0)>0) {
     warning("Some respiration data values are below 0. Please check your dataset.")
+    rold<-DAT$respiration
   }
   # define the weights
   DAT$weights[DAT$respiration <= 0] <- 0
-  DAT$respiration[DAT$respiration <= 0] <-  quantile(DAT$respiration[DAT$respiratio>0],0.01)                 # make sure there are no nonsense values
+  DAT$respiration[DAT$respiration <= 0] <-  quantile(DAT$respiration[DAT$respiration>0],0.01)                 # make sure there are no nonsense values
   
   
   DAT$tau<-(DAT$temperature -Tref)/gam  # Define tau and rho which are decomposed
   DAT$rho<-log(DAT$respiration)
+  
+  #if (any(is.na(DAT$rho))) browser()
   
   output<-list()
   
