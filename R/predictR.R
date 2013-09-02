@@ -18,11 +18,13 @@ predictR<-function(
   ##title<< Predict respiration
   ##description<< Calculate respiration for given basal respiration and Q10 value
   Rb, ##<< numeric vector: basal respiration
-  Q10, ##<< numeric: Q10
+  Q10, ##<< numeric: either Q10 
+  Ea, ##<< numeric: or activation energy, depending on the model
   temperature, ##<< numeric vector: temperature time series
   lag=0, 
   Tref=15, ##<< numeric: reference tempreature
-  gam=10  ##<< numeric: gamma value in Q10 equation
+  gam=10,  ##<< numeric: gamma value in Q10 equation
+  model
 ) {
   ##details<< This function can be useful to calculate predicted respiration for surrogate and time-lagged SCAPE output data
   ## 
@@ -39,5 +41,7 @@ predictR<-function(
     temperature[(l+lag+1):l]<-NA
   }
   ##value<< time series of predicted respiration
-  return(Rb*Q10^((temperature-Tref)/gam))
+  if (model=="Q10") return(Rb*Q10^((temperature-Tref)/gam))
+  else if (model=="Arrhenius") return(Rb*exp(-Ea/temperature))
+  else if (model=="LloydTaylor") return(Rb*exp(Ea*( 1/(Tref-227.13) - 1/(temperature-227.13) )))
 }

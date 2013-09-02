@@ -39,6 +39,7 @@ scapedecomp=function(
     warning("Smoothing time window is smaller than 2 time steps, reset to min value")
     fborder=ceiling(2/sf)
   }
+
   
   # frequencies to extract
   borders.wl      <- data.frame(s0 = c(fborder, Inf), # annual freq
@@ -144,7 +145,7 @@ scapedecomp=function(
 	
 	
   } else if (method == "wavMODWT") {
-#    library("wmtsa")
+    library("wmtsa")
 #    library("spectral.methods")
     x <- x - mean(x)
 	y <- wavShift(wavMODWT(x, wavelet = "s8", n.levels=6, keep.series=TRUE))
