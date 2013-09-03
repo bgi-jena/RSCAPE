@@ -23,9 +23,7 @@ getSens <-function(
   temperature, ##<< numeric vector: temperature time series
   respiration, ##<< numeric vector: respiration time series
   sf,   ##<< numeric: sampling rate, number of measurements (per day)
-  model="Q10",   ##<< String: model to be applied for estimating the T sensitivity (choose from "Q10","Arrhenius","LloydTaylor")
-  Tref=15, ##<< numeric: reference temperature in Q10 equation
-  gam=10, ##<< numeric: gamma value in Q10 equation
+  gettau, ##<< numeric: function to transform the exponent in the sensitivity model
   fborder=30, ##<< numeric: boundary for dividing high- and low-frequency parts (in days)
   M=-1, ##<< numeric vector: size of SSA window (in days)
   nss=0, ##<< numeric vector: number of surrogate samples 
@@ -33,7 +31,7 @@ getSens <-function(
   weights=NULL, ##<< numeric vector: optional vector of weights to be used for linear regression, points can be set to 0 for bad data points
   lag=NULL, ##<< numeric vector: optional vector of time lags between respiration and temprature signal
   gapFilling=TRUE, ##<< Logical: Choose whether Gap-Filling should be applied
-  plot=FALSE ##<< Logical: Choose whether Surrogates should be plotted
+  doPlot=FALSE ##<< Logical: Choose whether Surrogates should be plotted
 ) 
 ##details<<
 ##Function to determine the temperature sensitivity ($Q_{10}$ value) and time varying basal efflux (R$_b$) from a given temperature and efflux (usually respiration) time series. 
@@ -84,18 +82,20 @@ getSens <-function(
   DAT$respiration[DAT$respiration <= 0] <-  quantile(DAT$respiration[DAT$respiration>0],0.01)                 # make sure there are no nonsense values
   
   # define tau which will be decomposed  
-  if (model == "Q10") {
-    DAT$tau <- (DAT$temperature -Tref)/gam  
-  } else if (model == "Arrhenius") {
-    R_gas_const = 8.3144621 # units J K−1 mol−1 
-    DAT$temperature = DAT$temperature + 273.15 # Backtransform to Kelvin
-    DAT$tau <- -1/DAT$temperature
-  } else if (model == "LloydTaylor") {
-    Tref = Tref + 273.15
-    T0 = 227.13
-    DAT$temperature = DAT$temperature + 273.15 # Backtransform to Kelvin
-    DAT$tau <- ( 1/(Tref-T0) - 1/(DAT$temperature-T0) )
-  }
+  DAT$tau <- gettau(temperature)
+  
+  #if (model == "Q10") {
+  #  DAT$tau <- (DAT$temperature -Tref)/gam  
+  #} else if (model == "Arrhenius") {
+  #  R_gas_const = 8.3144621 # units J K−1 mol−1 
+  #  DAT$temperature = DAT$temperature + 273.15 # Backtransform to Kelvin
+  #  DAT$tau <- -1/DAT$temperature
+  #} else if (model == "LloydTaylor") {
+  #  Tref = Tref + 273.15
+  #  T0 = 227.13
+  #  DAT$temperature = DAT$temperature + 273.15 # Backtransform to Kelvin
+  #  DAT$tau <- ( 1/(Tref-T0) - 1/(DAT$temperature-T0) )
+  #}
   
   # add rho which will be decomposed  
   DAT$rho<-log(DAT$respiration)
@@ -110,14 +110,11 @@ getSens <-function(
   
   output$settings            <-  list()
   output$settings$sf         <-  sf
-  output$settings$Tref       <-  Tref
-  output$settings$gam        <-  gam
   output$settings$fborder    <-  fborder
   output$settings$M          <-  M
   output$settings$nss        <-  nss
   output$settings$method     <-  method
   output$settings$lag        <-  lag
-  output$settings$model      <-  model
   output$settings$gapFilling <-  gapFilling
   cat(" ok\n")
   
@@ -148,13 +145,7 @@ getSens <-function(
     
     lmres <- lm(rho~tau-1, weights=weights)  
     
-    if (model == "Arrhenius") {
-      return(list(E = lmres$coefficients, Confint=confint(lmres)[2]-confint(lmres)[1]))
-    } else if (model == "LloydTaylor") {
-      return(list(E = lmres$coefficients, Confint=confint(lmres)[2]-confint(lmres)[1]))
-    } else if (model == "Q10") {
-      return(list(Q10 = exp(lmres$coefficients), Confint=exp(confint(lmres)[2])-exp(confint(lmres)[1]))) 
-    }
+    return(list(XYZ = lmres$coefficients, Confint=confint(lmres)[2]-confint(lmres)[1]))
   }
   
   #Generate Ensemble of surrogate base-respiration data
@@ -180,14 +171,14 @@ getSens <-function(
     cat(" ok\n")
     
     cat("fitting surrogate models")
-    output$SCAPE_Q10_surr <- array(data=0,dim=c(nss,nss))
+    output$SCAPE_XYZ_surr <- array(data=0,dim=c(nss,nss))
     output$SCAPE_Rb_surr <- array(data=0,dim=c(nss,nss,nrow(DAT)))
     output$SCAPE_Rpred_surr <- array(data=0,dim=c(nss,nss,nrow(DAT)))
     for (i in 1:nss) {
       for (j in 1:nss) {
-        output$SCAPE_Q10_surr[i,j]    <- calcSensModel(ens.rho.dec.hf[,i],ens.tau.dec.hf[,j],DAT$weights,0)[[1]]
-        output$SCAPE_Rb_surr[i,j,]    <- getRb2Sens(tau_lf=ens.tau.dec.lf[,j],rho_lf=ens.rho.dec.lf[,i],tau=sur.tau[,i],rho=sur.rho[,j],Q10=output$SCAPE_Q10_surr[i,j],Ea=output$SCAPE_Q10_surr[i,j],model=model)
-        output$SCAPE_Rpred_surr[i,j,] <- output$SCAPE_Rb_surr[i,j,]*output$SCAPE_Q10_surr[i,j]^((DAT$temperature-Tref)/gam)
+        output$SCAPE_XYZ_surr[i,j]    <- calcSensModel(ens.rho.dec.hf[,i],ens.tau.dec.hf[,j],DAT$weights,0)[[1]]
+        output$SCAPE_Rb_surr[i,j,]    <- getRb2Sens(tau_lf=ens.tau.dec.lf[,j],rho_lf=ens.rho.dec.lf[,i],tau=sur.tau[,i],rho=sur.rho[,j],S=output$SCAPE_XYZ_surr[i,j])
+        output$SCAPE_Rpred_surr[i,j,] <- predictR(Rb=output$SCAPE_Rb_surr[i,j,],S=output$SCAPE_XYZ_surr[i,j],tau=DAT$tau,lag=0)
       }
     }
     output$surrogates<-list()
@@ -202,36 +193,36 @@ getSens <-function(
   cat("Regression of SCAPE and Conventional method")
   # No surrogates but taking confidence interval of linear fit
   lmres_SCAPE <- calcSensModel(DAT$rho.dec.hf,DAT$tau.dec.hf,DAT$weights,0)
-  output$SCAPE_Q10 <- lmres_SCAPE[[1]]
-  output$SCAPE_Q10_regression_confint <- lmres_SCAPE[[2]]
+  output$SCAPE_XYZ <- lmres_SCAPE[[1]]
+  output$SCAPE_XYZ_regression_confint <- lmres_SCAPE[[2]]
   
   # Another comparison, calculate Q10 with linear fit using logarithmic formula
   lmres_Conv <- calcSensModel(DAT$rho-mean(DAT$rho), DAT$tau-mean(DAT$tau), DAT$weights, 0)
-  output$Conv_Q10 <- lmres_Conv[[1]]
+  output$Conv_XYZ <- lmres_Conv[[1]]
   output$Conv_Rb <- exp(mean(DAT$rho)-lmres_Conv[[1]]*mean(DAT$tau))
-  output$Conv_Q10_regression_confint <- lmres_Conv[[2]]
+  output$Conv_XYZ_regression_confint <- lmres_Conv[[2]]
   cat(" ok\n")
   
   # Time lagged linear fits
   if (length(lag>0)) {
     cat("Calculating time-lagged results")
     output$lag_results     <- list()
-    output$lag_results$Q10 <- array(NA,dim=c(length(lag),4),list(Lag=as.character(lag),Value=c("SCAPE_Q10","+/-","Conv_Q10","+/-")))
+    output$lag_results$S <- array(NA,dim=c(length(lag),4),list(Lag=as.character(lag),Value=c("SCAPE_XYZ","+/-","Conv_XYZ","+/-")))
     ilag                      		   <- 1
     for (tl in lag) {
       lmres_SCAPE                      <- calcSensModel(DAT$rho.dec.hf,DAT$tau.dec.hf,DAT$weights,tl)
       lmres_Conv                       <- calcSensModel(DAT$rho,DAT$tau,DAT$weights,tl)
-      output$lag_results$Q10[ilag,]    <- c(lmres_SCAPE[[1]],lmres_SCAPE[[2]]/2,lmres_Conv[[1]],lmres_Conv[[2]]/2)
+      output$lag_results$S[ilag,]    <- c(lmres_SCAPE[[1]],lmres_SCAPE[[2]]/2,lmres_Conv[[1]],lmres_Conv[[2]]/2)
       ilag<-ilag+1
     }
     if (nss>0) {
-      output$lag_results$surrogate_Q10 <- array(NA,dim=c(length(lag),nss,nss),list(Lag=as.character(lag),sur_rho=as.character(1:nss),sur_tau=as.character(1:nss)))
+      output$lag_results$surrogate_XYZ <- array(NA,dim=c(length(lag),nss,nss),list(Lag=as.character(lag),sur_rho=as.character(1:nss),sur_tau=as.character(1:nss)))
       for (i in 1:nss) {
         for (j in 1:nss) {
           ilag                      <- 1
           for (tl in lag) {
             lmres_SCAPE                      <- calcSensModel(ens.rho.dec.hf[,i],ens.tau.dec.hf[,j],DAT$weights,tl)
-            output$lag_results$surrogate_Q10[ilag,i,j] <- c(lmres_SCAPE[[1]])
+            output$lag_results$surrogate_XYZ[ilag,i,j] <- c(lmres_SCAPE[[1]])
             ilag<-ilag+1
           }
         } 
@@ -251,30 +242,21 @@ getSens <-function(
   #})
   
   cat("Reconstructing Rb")
-  output$SCAPE_Rb  <- getRb2Sens(tau_lf=DAT$tau.dec.lf,rho_lf=DAT$rho.dec.lf,tau=DAT$tau,rho=DAT$rho,Q10=output$SCAPE_Q10,Ea=output$SCAPE_Q10,model)
-  DAT$SCAPE_R_pred <- predictR(Rb=output$SCAPE_Rb,Q10=output$SCAPE_Q10,Ea=output$SCAPE_Q10,temperature=DAT$temperature,lag=0,Tref=Tref,gam=gam,model=model)
-  DAT$Conv_R_pred  <- predictR(Rb=output$Conv_Rb,Q10=output$Conv_Q10,Ea=output$Conv_Q10,temperature=DAT$temperature,lag=0,Tref=Tref,gam=gam,model=model)
+  output$SCAPE_Rb  <- getRb2Sens(tau_lf=DAT$tau.dec.lf,rho_lf=DAT$rho.dec.lf,tau=DAT$tau,rho=DAT$rho,S=output$SCAPE_XYZ)
+  DAT$SCAPE_R_pred <- predictR(Rb=output$SCAPE_Rb,S=output$SCAPE_XYZ,tau=DAT$tau,lag=0)
+  DAT$Conv_R_pred  <- predictR(Rb=output$Conv_Rb,S=output$Conv_XYZ,tau=DAT$tau,lag=0)
   #output$MEF<-MEFW(DAT$respiration_pred,DAT$respiration,w=DAT$weights)
   cat(" ok\n")
   output$DAT<-DAT
-  if (plot) {
+  if (doPlot) {
     if (nss==0) warning("No ensemble plot possible, because number of surrogates is set to 0")
     else plotensembles(output)
   }
   
-  subnames<-function(x,old,new) {
-  oldnames<-names(x)
-  if (length(names(x))>0) names(x)<-gsub(pattern=old,replacement=new,x=oldnames)
-  if (class(x)=="list") {
-    for (i in 1:length(x)) {
-      x[[i]]<-subnames(x[[i]],old,new)
-    }
-  }
-  return(x)
-  }
+
   
-  if (model=="Arrhenius") output=subnames(output,"Q10","Ea")
-  if (model=="LloydTaylor") output=subnames(output,"Q10","Ea")
+  #if (model=="Arrhenius") output=subnames(output,"Q10","Ea")
+  #if (model=="LloydTaylor") output=subnames(output,"Q10","Ea")
 
   ##value<< 
   ##A list with elements

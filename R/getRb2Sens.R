@@ -21,9 +21,7 @@ getRb2Sens <-function(
   rho_lf, ##<< numeric vector: low frequency component of logarithmic respiration time series log(respiration)
   tau, ##<< numeric vector: normalized temperature time series e.g. (T - Tref)/gamma
   rho, ##<< numeric vector: logarithmic respiration time series log(respiration)
-  Q10,  ##<< numeric: estimated Q10 value or
-  Ea, ##<< numeric: estimated activation energy
-  model
+  S  ##<< numeric: estimated Q10 value or
 ) {
   ##details<< This function can be useful to calculate predicted Rb for surrogate and time-lagged SCAPE output data
   ## 
@@ -31,12 +29,8 @@ getRb2Sens <-function(
   ##author<<
   ##Fabian Gans, Miguel D. Mahecha, MPI BGC Jena, Germany, fgans@bgc-jena.mpg.de mmahecha@bgc-jena.mpg.de
   
-  if (model == "Q10") {
-    rho_lf_tau<-(tau_lf+mean(tau))*log(Q10)    
-  } else {
-    #print(paste("The param value is: ", Q10, sep = ""))
-    rho_lf_tau<-(tau_lf+mean(tau))*Ea     
-  }
+  #print(paste("The param value is: ", Q10, sep = ""))
+  rho_lf_tau<-(tau_lf+mean(tau))*S
   
   ##value<< time series of estimated basal respiration
   return(exp(rho_lf+mean(rho)-rho_lf_tau))

@@ -15,7 +15,7 @@
 #     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-getQ10 <-function(
+getLloydTaylor <-function(
   ##title<< Estimate $Q_{10}$ value and time varying $R_b$ from temperature and efflux time series including uncertainty.
   ##description<< Function to determine the temperature sensitivity ($Q_{10}$ value) and time varying 
   ## basal efflux (R$_b(i)$) from a given temperature and efflux (usually respiration) time series 
@@ -23,8 +23,6 @@ getQ10 <-function(
   temperature, ##<< numeric vector: temperature time series
   respiration, ##<< numeric vector: respiration time series
   sf,   ##<< numeric: sampling rate, number of measurements (per day)
-  Tref=15, ##<< numeric: reference temperature in Q10 equation
-  gam=10, ##<< numeric: gamma value in Q10 equation
   fborder=30, ##<< numeric: boundary for dividing high- and low-frequency parts (in days)
   M=-1, ##<< numeric vector: size of SSA window (in days)
   nss=0, ##<< numeric vector: number of surrogate samples 
@@ -35,17 +33,17 @@ getQ10 <-function(
   doPlot=FALSE ##<< Logical: Choose whether Surrogates should be plotted
 ) 
 ##details<<
-##Function to determine the temperature sensitivity ($Q_{10}$ value) and time varying basal efflux (R$_b$) from a given temperature and efflux (usually respiration) time series. 
-##Conventionally, the following model is used in the literature:
+##Function to determine the activation energy ($Ea$ value) and time varying saturation efflux (R$_b$) from a given temperature and efflux (usually respiration) time series. 
+##The following model was proposed by .....:
 ##
-##  Resp(i) = R_b Q_{10}^((T(i)-Tref)/(gamma),
+##  Resp(i) = R_b exp(1/(Tref-T0) - 1/(T(i)-T0)),
 ##
 ##where $i$ is the time index. It has been shown, however, that this model is misleading when $R_b$ is varying over time which can be expected in many real world examples (e.g. Sampson et al. 2008).
 ##
 ##If $R_b$ varies slowly, i.e. with some low frequency then the "scale dependent parameter estimation, SCAPE" 
 ##allows us to identify this oscillatory pattern. As a consequence, the estimation of $Q_{10}$ can be substantially stabilized (Mahecha et al. 2010). The model becomes 
 ##
-##Resp(i) = R_b(i)Q_{10}^((T(i)-Tref)/(gamma),
+##Resp(i) = R_b(i) exp(1/(Tref-T0) - 1/(T(i)-T0)),
 ##
 ##where $R_b(i)$ is the time varying "basal respiration", i.e. the respiration expected at $Tref$. The convenience function getQ10 allows to extract the $Q_{10}$ value minimizing the confounding factor of the time varying $R_b$. Four different spectral methods can be used and compared. A surrogate technique (function by curtsey of Dr. Henning Rust, written in the context of Venema et al. 2006) is applied to propagate the uncertainty due to the decomposition.
 ##
@@ -55,12 +53,15 @@ getQ10 <-function(
 ##Fabian Gans, Miguel D. Mahecha, MPI BGC Jena, Germany, fgans@bgc-jena.mpg.de mmahecha@bgc-jena.mpg.de
 {
   gettau <- function(temperature) {
-    return((temperature-Tref)/gam)
+    Tref = Tref + 273.15
+    T0 = 227.13
+    temperature = temperature + 273.15 # Backtransform to Kelvin
+     return( 1/(Tref-T0) - 1/(temperature-T0) )
   }
   
-  getSensPar <- function(S) return(exp(S))
+  getSensPar <- function(S) return(S*8.3144621)
   
-  invGetSensPar <- function(X) return(log(X))
+  invGetSensPar <- function(X) return(X/8.3144621)
   
   output <- getSens(temperature=temperature,
                     respiration=respiration,
