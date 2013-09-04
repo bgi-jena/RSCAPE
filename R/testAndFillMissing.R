@@ -30,6 +30,8 @@ testAndFillMissing <-function(
 #  library(zoo)
   DAT               <- na.trim(DAT, sides = c("both"), is.na = c("any"))
   
+  if (!("weights" %in% colnames(DAT))) DAT$weights <- 1
+  
   if (any(is.na(DAT$te))) {
     if (TRUE) {
       print("Temperature data has gaps! Trying Gapfilling....")
