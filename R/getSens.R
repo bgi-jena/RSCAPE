@@ -208,12 +208,12 @@ getSens <-function(
   if (length(lag>0)) {
     cat("Calculating time-lagged results")
     output$lag_results     <- list()
-    output$lag_results$S <- array(NA,dim=c(length(lag),4),list(Lag=as.character(lag),Value=c("SCAPE_XYZ","+/-","Conv_XYZ","+/-")))
+    output$lag_results$XYZ <- array(NA,dim=c(length(lag),4),list(Lag=as.character(lag),Value=c("SCAPE_XYZ","+/-","Conv_XYZ","+/-")))
     ilag                      		   <- 1
     for (tl in lag) {
       lmres_SCAPE                      <- calcSensModel(DAT$rho.dec.hf,DAT$tau.dec.hf,DAT$weights,tl)
       lmres_Conv                       <- calcSensModel(DAT$rho,DAT$tau,DAT$weights,tl)
-      output$lag_results$S[ilag,]    <- c(lmres_SCAPE[[1]],lmres_SCAPE[[2]]/2,lmres_Conv[[1]],lmres_Conv[[2]]/2)
+      output$lag_results$XYZ[ilag,]    <- c(lmres_SCAPE[[1]],lmres_SCAPE[[2]]/2,lmres_Conv[[1]],lmres_Conv[[2]]/2)
       ilag<-ilag+1
     }
     if (nss>0) {

@@ -97,8 +97,8 @@ evalSens <-function(
     ilag<-1
     for (tl in lag) {
       rb                 <- getRb2Sens(tau_lf=SCAPE_res$DAT$tau.dec.lf,rho_lf=SCAPE_res$DAT$rho.dec.lf,
-                         tau=SCAPE_res$DAT$tau,rho=SCAPE_res$DAT$rho,S=invS(SCAPE_res$lag_results$Ea[ilag,1]))
-      pred               <- predictR(Rb=rb,S=invS(SCAPE_res$lag_results$Q10[ilag,1]),tau=SCAPE_res$DAT$tau,lag=tl)
+                         tau=SCAPE_res$DAT$tau,rho=SCAPE_res$DAT$rho,S=invS(SCAPE_res$lag_results[[1]][ilag,1]))
+      pred               <- predictR(Rb=rb,S=invS(SCAPE_res$lag_results[[1]][ilag,1]),tau=SCAPE_res$DAT$tau,lag=tl)
       nalist             <- is.na(pred)
       x                  <- scapedecomp(x = pred[!nalist],sf=sf,fborder=fborder,method=method,Ms=M)
       resp_pred_lag_hf   <- x[, 2]
