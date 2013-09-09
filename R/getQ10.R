@@ -61,6 +61,7 @@ getQ10 <-function(
   getSensPar <- function(S) return(exp(S))
   
   invGetSensPar <- function(X) return(log(X))
+  environment(invGetSensPar)<-baseenv()
   
   output <- getSens(temperature=temperature,
                     respiration=respiration,

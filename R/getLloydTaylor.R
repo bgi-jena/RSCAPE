@@ -62,6 +62,7 @@ getLloydTaylor <-function(
   getSensPar <- function(S) return(S*8.3144621)
   
   invGetSensPar <- function(X) return(X/8.3144621)
+  environment(invGetSensPar)<-baseenv()
   
   output <- getSens(temperature=temperature,
                     respiration=respiration,

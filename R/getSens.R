@@ -194,14 +194,14 @@ getSens <-function(
   cat("Regression of SCAPE and Conventional method")
   # No surrogates but taking confidence interval of linear fit
   lmres_SCAPE <- calcSensModel(DAT$rho.dec.hf,DAT$tau.dec.hf,DAT$weights,0)
-  output$SCAPE_XYZ <- lmres_SCAPE[[1]]
-  output$SCAPE_XYZ_regression_confint <- lmres_SCAPE[[2]]
+  output$SCAPE_XYZ <- unname(lmres_SCAPE[[1]])
+  output$SCAPE_XYZ_regression_confint <- unname(lmres_SCAPE[[2]])
   
   # Another comparison, calculate Q10 with linear fit using logarithmic formula
   lmres_Conv <- calcSensModel(DAT$rho-mean(DAT$rho), DAT$tau-mean(DAT$tau), DAT$weights, 0)
-  output$Conv_XYZ <- lmres_Conv[[1]]
-  output$Conv_Rb <- exp(mean(DAT$rho)-lmres_Conv[[1]]*mean(DAT$tau))
-  output$Conv_XYZ_regression_confint <- lmres_Conv[[2]]
+  output$Conv_XYZ <- unname(lmres_Conv[[1]])
+  output$Conv_Rb <- unname(exp(mean(DAT$rho)-lmres_Conv[[1]]*mean(DAT$tau)))
+  output$Conv_XYZ_regression_confint <- unname(lmres_Conv[[2]])
   cat(" ok\n")
   
   # Time lagged linear fits
