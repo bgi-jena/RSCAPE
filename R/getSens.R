@@ -65,7 +65,7 @@ getSens <-function(
   if (sd(DAT$temperature)==0 | sd(DAT$respiration)==0) {
     stop("Constant time series not allowed!")
   }
-  
+
   if (mean(DAT$temperature)<150) {
     cat("assuming temperature is given in deg C")
   } else {

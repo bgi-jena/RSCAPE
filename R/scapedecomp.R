@@ -91,8 +91,14 @@ scapedecomp=function(
 #    library("EMD")
 #    library("spectral.methods")
     y       <- emd(x,boundary="none",sm="none",max.imf=20)
-    freqs   <- vector(mode="numeric",length=y$nimf)
     dat.dec <- matrix(0,nrow=l,ncol=ncol(borders.wl))
+    if (y$nimf==0) {
+      dat.dec[,1]<-x
+      dat.dec[,2]<-0
+      warning("Could not extract high frequency signal. Sensitivity will not make sense!")
+      return(apply(dat.dec, 2, function(z) z-mean(z)))
+    }
+    freqs   <- vector(mode="numeric",length=y$nimf)
     for (i in 1:y$nimf) {
       freqs[i] <- 1/calcFrequency(y$imf[,i])
     }
