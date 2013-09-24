@@ -59,7 +59,6 @@ getSens <-function(
   if ((length(weights)!=length(temperature)) | (length(weights)!=length(respiration))) stop("Error: Input data must have the same length")
   
   DAT               <- data.frame(temperature,respiration,weights)
-  
   DAT<-testAndFillMissing(DAT,sf)
   
   if (sd(DAT$temperature)==0 | sd(DAT$respiration)==0) {
@@ -99,6 +98,7 @@ getSens <-function(
   #}
   
   # add rho which will be decomposed  
+  
   DAT$rho<-log(DAT$respiration)
   
   if (any(is.na(DAT$rho))) {
@@ -197,6 +197,11 @@ getSens <-function(
   output$SCAPE_XYZ <- unname(lmres_SCAPE[[1]])
   output$SCAPE_XYZ_regression_confint <- unname(lmres_SCAPE[[2]])
   
+  if (is.na(output$SCAPE_XYZ)) {
+    warning("Sensitivity could not be determined, because hf-tau is empty")
+    output$SCAPE_XYZ <- 1
+  }
+  
   # Another comparison, calculate Q10 with linear fit using logarithmic formula
   lmres_Conv <- calcSensModel(DAT$rho-mean(DAT$rho), DAT$tau-mean(DAT$tau), DAT$weights, 0)
   output$Conv_XYZ <- unname(lmres_Conv[[1]])
@@ -241,6 +246,7 @@ getSens <-function(
   #  DAT$respiration_pred_simple<-predict(nlmres)
   #  #output$MEF_simple<-MEFW(DAT$respiration_pred_simple,DAT$respiration,w=DAT$weights)
   #})
+  
   
   cat("Reconstructing Rb")
   output$SCAPE_Rb  <- getRb2Sens(tau_lf=DAT$tau.dec.lf,rho_lf=DAT$rho.dec.lf,tau=DAT$tau,rho=DAT$rho,S=output$SCAPE_XYZ)

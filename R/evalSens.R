@@ -47,7 +47,7 @@ evalSens <-function(
   SCAPE_res$settings$model      ->  model
   SCAPE_res$settings$gapFilling ->  gapFilling
   SCAPE_res$settings$invGetSensPar ->  invS
-    
+   
   rho_pred <- log(SCAPE_res$DAT$SCAPE_R_pred) #Define rho from SCAPE prediction
   rho_pred_conv <- log(SCAPE_res$DAT$Conv_R_pred) #Define rho from SCAPE prediction
   rho <- log(SCAPE_res$DAT$respiration) #Define rho from SCAPE prediction
