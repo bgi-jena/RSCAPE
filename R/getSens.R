@@ -200,6 +200,7 @@ getSens <-function(
   if (is.na(output$SCAPE_XYZ)) {
     warning("Sensitivity could not be determined, because hf-tau is empty")
     output$SCAPE_XYZ <- 1
+    output$SCAPE_XYZ_regression_confint <- 0
   }
   
   # Another comparison, calculate Q10 with linear fit using logarithmic formula
