@@ -22,18 +22,22 @@ plotensembles<-function(
   DAT<-result$DAT
   ens<-result$surrogates
   par(mfrow=c(2,2))
-  plot(1:nrow(DAT),DAT$rho.dec.lf,lwd=3,"l",xlab="n",ylab="rho low frequencies")
+  plot(1:nrow(DAT),DAT$rho-mean(DAT$rho),xlab="n",ylab="rho low frequencies")
+  lines(1:nrow(DAT),DAT$rho.dec.lf,lwd=3)
   for (i in 1:dim(ens[[1]])[2]) {
     lines(1:nrow(DAT),ens$rho.dec.lf[,i],col=i+1)
   }
+  
   plot(1:nrow(DAT),DAT$rho.dec.hf,lwd=3,"l",xlab="n",ylab="rho high frequencies")
   for (i in 1:dim(ens[[1]])[2]) {
     lines(1:nrow(DAT),ens$rho.dec.hf[,i],col=i+1)
   }
-  plot(1:nrow(DAT),DAT$tau.dec.lf,lwd=3,"l",xlab="n",ylab="tau low frequencies")
+  plot(1:nrow(DAT),DAT$tau-mean(DAT$tau),xlab="n",ylab="tau low frequencies")
+  lines(1:nrow(DAT),DAT$tau.dec.lf,lwd=3,"l")
   for (i in 1:dim(ens[[1]])[2]) {
     lines(1:nrow(DAT),ens$tau.dec.lf[,i],col=i+1)
   }
+  
   plot(1:nrow(DAT),DAT$tau.dec.hf,lwd=3,"l",xlab="n",ylab="tau high frequencies")
   for (i in 1:dim(ens[[1]])[2]) {
     lines(1:nrow(DAT),ens$tau.dec.hf[,i],col=i+1)

@@ -218,7 +218,7 @@ getSens <-function(
     ilag                      		   <- 1
     for (tl in lag) {
       lmres_SCAPE                      <- calcSensModel(DAT$rho.dec.hf,DAT$tau.dec.hf,DAT$weights,tl)
-      lmres_Conv                       <- calcSensModel(DAT$rho,DAT$tau,DAT$weights,tl)
+      lmres_Conv                       <- calcSensModel(DAT$rho-mean(DAT$rho),DAT$tau-mean(DAT$tau),DAT$weights,tl)
       output$lag_results$XYZ[ilag,]    <- c(lmres_SCAPE[[1]],lmres_SCAPE[[2]]/2,lmres_Conv[[1]],lmres_Conv[[2]]/2)
       ilag<-ilag+1
     }
