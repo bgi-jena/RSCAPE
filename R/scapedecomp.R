@@ -168,7 +168,7 @@ scapedecomp=function(
     if (sum(!colind) > 1) {
       dat.dec[, 1] <- rowSums(decomp.wavMODWT[, !colind])
     } else if (sum(!colind)==1) {
-        dat.dec[, 1] <- decomp.wavMODWT[, colind]
+        dat.dec[, 1] <- decomp.wavMODWT[, !colind]
     } else {
       warning("Caution, discrete wavelet transform did not extract low frequency signal, please choose a lower frequency boundary!")
       dat.dec[, 1] <- decomp.wavMODWT[, length(y$data)]
