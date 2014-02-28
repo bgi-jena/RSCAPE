@@ -1,18 +1,17 @@
-\name{getQ10}
-\alias{getQ10}
+\name{getSens}
+\alias{getSens}
 \title{Estimate $Q_{10}$ value and time varying $R_b$ from temperature and efflux time series including uncertainty.}
 \description{Function to determine the temperature sensitivity ($Q_{10}$ value) and time varying 
 basal efflux (R$_b(i)$) from a given temperature and efflux (usually respiration) time series 
 according the principle of "SCAle dependent Parameter Estimation, SCAPE" (Mahecha et al. 2010).  }
-\usage{getQ10(temperature, respiration, sf, Tref = 15, gam = 10, fborder = 30, 
-    M = -1, nss = 0, method = "Fourier", weights = NULL, lag = NULL, 
+\usage{getSens(temperature, respiration, sf, gettau, fborder = 30, M = -1, 
+    nss = 0, method = "Fourier", weights = NULL, lag = NULL, 
     gapFilling = TRUE, doPlot = FALSE)}
 \arguments{
   \item{temperature}{numeric vector: temperature time series}
   \item{respiration}{numeric vector: respiration time series}
   \item{sf}{numeric: sampling rate, number of measurements (per day)}
-  \item{Tref}{numeric: reference temperature in Q10 equation}
-  \item{gam}{numeric: gamma value in Q10 equation}
+  \item{gettau}{numeric: function to transform the exponent in the sensitivity model}
   \item{fborder}{numeric: boundary for dividing high- and low-frequency parts (in days)}
   \item{M}{numeric vector: size of SSA window (in days)}
   \item{nss}{numeric vector: number of surrogate samples}
