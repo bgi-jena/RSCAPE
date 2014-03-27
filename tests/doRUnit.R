@@ -1,8 +1,4 @@
 ## unit tests will not be done if RUnit is not available
-if(require("testthat", quietly=TRUE)) {
-	#pkg <- "PKG" # <-- Change to package name!
-	pkg <- "RSCAPE" # <-- Change to package name!
-	test_package(pkg)
-} else {
-	warning("cannot run unit tests -- package testthat is not available")
-}
+require(testthat)
+pkg <- "RSCAPE" 
+test_package(pkg)

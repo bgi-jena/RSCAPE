@@ -66,7 +66,7 @@ scapedecomp=function(
     # corresponding embedding dimensions
     if (Ms==-1) M=l/2.5
     M              <- c(floor(min(Ms[1]*sf,l/3)), floor(Ms[1]*sf/3))
-
+browser()
     # decompose the time series    
     dat.dec    <- filterTSeriesSSA(x,
                                    borders.wl       = borders.wl,
@@ -88,8 +88,6 @@ scapedecomp=function(
     
 	
   } else if (method=="EMD") {
-#    library("EMD")
-#    library("spectral.methods")
     y       <- emd(x,boundary="none",sm="none",max.imf=20)
     dat.dec <- matrix(0,nrow=l,ncol=ncol(borders.wl))
     if (y$nimf==0) {
@@ -116,7 +114,7 @@ scapedecomp=function(
     
 	
   } else if (method=="MA") {
-#    library("forecast")
+    x<-x-mean(x)
     dat.dec<-matrix(0,nrow=l,ncol=ncol(borders.wl))
     fx<-ma(x,fborder*sf)
     #Fill edges
@@ -151,8 +149,6 @@ scapedecomp=function(
 	
 	
   } else if (method == "wavMODWT") {
-    library("wmtsa")
-#    library("spectral.methods")
     x <- x - mean(x)
 	y <- wavShift(wavMODWT(x, wavelet = "s8", n.levels=6, keep.series=TRUE))
 	freqs   <- vector(mode="numeric", length = (length(y$data)))
