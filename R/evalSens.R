@@ -16,7 +16,7 @@
 
 evalSens <-function(
   ##title<< Evaluating the SCAPE performance
-  ##description<< Function to properly evaluating the model based on the SCAPE estimated sensitivities. 
+  ##description<< Function to properly evaluate the model based on the SCAPE estimated sensitivities. 
   ## COMMENT: This function is still experimental
   SCAPE_res, ##<< list: ouput from a successful run of a getQ10, getArrhenius or getLloydTaylor function
   Rb = NA ##<<vector: in case it applies: an Rb time series

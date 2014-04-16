@@ -16,8 +16,8 @@
 #
 
 getLloydTaylor <-function(
-  ##title<< Estimate $Q_{10}$ value and time varying $R_b$ from temperature and efflux time series including uncertainty.
-  ##description<< Function to determine the temperature sensitivity ($Q_{10}$ value) and time varying 
+  ##title<< Estimate $E_a$ value and time varying $R_b$ from temperature and efflux time series including uncertainty.
+  ##description<< Function to determine the temperature sensitivity ($E_a$ value) and time varying 
   ## basal efflux (R$_b(i)$) from a given temperature and efflux (usually respiration) time series 
   ## according the principle of "SCAle dependent Parameter Estimation, SCAPE" (Mahecha et al. 2010).  
   temperature, ##<< numeric vector: temperature time series
@@ -41,11 +41,11 @@ getLloydTaylor <-function(
 ##where $i$ is the time index. It has been shown, however, that this model is misleading when $R_b$ is varying over time which can be expected in many real world examples (e.g. Sampson et al. 2008).
 ##
 ##If $R_b$ varies slowly, i.e. with some low frequency then the "scale dependent parameter estimation, SCAPE" 
-##allows us to identify this oscillatory pattern. As a consequence, the estimation of $Q_{10}$ can be substantially stabilized (Mahecha et al. 2010). The model becomes 
+##allows us to identify this oscillatory pattern. As a consequence, the estimation of $E_a$ can be substantially stabilized (Mahecha et al. 2010). The model becomes 
 ##
 ##Resp(i) = R_b(i) exp(1/(Tref-T0) - 1/(T(i)-T0)),
 ##
-##where $R_b(i)$ is the time varying "basal respiration", i.e. the respiration expected at $Tref$. The convenience function getQ10 allows to extract the $Q_{10}$ value minimizing the confounding factor of the time varying $R_b$. Four different spectral methods can be used and compared. A surrogate technique (function by curtsey of Dr. Henning Rust, written in the context of Venema et al. 2006) is applied to propagate the uncertainty due to the decomposition.
+##where $R_b(i)$ is the time varying "basal respiration", i.e. the respiration expected at $Tref$. The convenience function gettau allows to extract the $E_a$ value minimizing the confounding factor of the time varying $R_b$. Four different spectral methods can be used and compared. A surrogate technique (function by curtsey of Dr. Henning Rust, written in the context of Venema et al. 2006) is applied to propagate the uncertainty due to the decomposition.
 ##
 ##The user is strongly encouraged to use the function with caution, i.e. see critique by Graf et al. (2011).
 
@@ -77,15 +77,15 @@ getLloydTaylor <-function(
                     gapFilling=gapFilling,
                     doPlot=doPlot)
   
-  output <- .transformOutput(output,getSensPar,"Q10")
+  output <- .transformOutput(output,getSensPar,"Ea")
   
   output$settings$invGetSensPar <- invGetSensPar
   return(output)
   ##value<< 
   ##A list with elements
   ##
-  ##$SCAPE_Q10 : the estimated Q_{10} with the SCAPE principle and the method chosen.
-  ##$Conv_Q10 : the conventional Q_{10} (assuming constant Rb)
+  ##$SCAPE_Ea : the estimated E_a with the SCAPE principle and the method chosen.
+  ##$Conv_Ea : the conventional E_a (assuming constant Rb)
   ##$DAT$SCAPE_R_pred : the SCAPE prediction of respiration 
   ##$DAT$SCAPE_Rb : the basal respiration based on the the SCAPE principle
   ##$DAT$Conv_R_pred : the conventional prediction of respiration 
