@@ -1,7 +1,7 @@
 \name{evalSens}
 \alias{evalSens}
 \title{Evaluating the SCAPE performance}
-\description{Function to properly evaluating the model based on the SCAPE estimated sensitivities. 
+\description{Function to properly evaluate the model based on the SCAPE estimated sensitivities. 
 COMMENT: This function is still experimental}
 \usage{evalSens(SCAPE_res, Rb = NA)}
 \arguments{

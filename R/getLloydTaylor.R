@@ -23,6 +23,8 @@ getLloydTaylor <-function(
   temperature, ##<< numeric vector: temperature time series
   respiration, ##<< numeric vector: respiration time series
   sf,   ##<< numeric: sampling rate, number of measurements (per day)
+  Tref=15, ##<<numeric: Reference temperature (in deg C)
+  T0=-46.02, ##<< numeric: Minimum temperature (in deg C) at which respiration becomes 0. Make sure that all temperature value are greater than this value 
   fborder=30, ##<< numeric: boundary for dividing high- and low-frequency parts (in days)
   M=-1, ##<< numeric vector: size of SSA window (in days)
   nss=0, ##<< numeric vector: number of surrogate samples 
@@ -53,10 +55,8 @@ getLloydTaylor <-function(
 ##Fabian Gans, Miguel D. Mahecha, MPI BGC Jena, Germany, fgans@bgc-jena.mpg.de mmahecha@bgc-jena.mpg.de
 {
   gettau <- function(temperature) {
-    Tref = Tref + 273.15
-    T0 = 227.13
-    temperature = temperature + 273.15 # Backtransform to Kelvin
-     return( 1/(Tref-T0) - 1/(temperature-T0) )
+    
+    return( 1/(Tref-T0) - 1/(temperature-T0) )
   }
   
   getSensPar <- function(S) return(S*8.3144621)

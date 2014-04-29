@@ -34,10 +34,10 @@ getSens <-function(
   doPlot=FALSE ##<< Logical: Choose whether Surrogates should be plotted
 ) 
 ##details<<
-##Function to determine the temperature sensitivity ($Q_{10}$ value) and time varying basal efflux (R$_b$) from a given temperature and efflux (usually respiration) time series. 
-##Conventionally, the following model is used in the literature:
+##General Function to determine the temperature sensitivity ($S$ value) and time varying basal efflux (R$_b$) from a given temperature and efflux (usually respiration) time series. 
+##The following general model is assumed:
 ##
-##  Resp(i) = R_b Q_{10}^((T(i)-Tref)/(gamma),
+##  Resp(i) = R_b exp(S/tau),
 ##
 ##where $i$ is the time index. It has been shown, however, that this model is misleading when $R_b$ is varying over time which can be expected in many real world examples (e.g. Sampson et al. 2008).
 ##
