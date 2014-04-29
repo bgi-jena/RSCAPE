@@ -1,2 +1,2 @@
 exportPattern("^[^\\.]")	#exports all variables that do not start with a period.
-import(wmtsa,EMD,spectral.methods,forecast,zoo,plyr)
+import(wmtsa,EMD,spectral.methods,forecast,zoo,plyr,testthat)
