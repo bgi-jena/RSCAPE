@@ -152,10 +152,10 @@ getSens <-function(
   #Generate Ensemble of surrogate base-respiration data
   if (nss>0) {
     cat("Generating surrogates")
-    sur.rho.hf <- iAAFTSurrogateEnsemble(DAT$rho.dec.hf,nss)
+    sur.rho.hf <- .iAAFTSurrogateEnsemble(DAT$rho.dec.hf,nss)
     sur.rho <- array(data=rep(DAT$rho.dec.lf,nss),dim=c(nrow(DAT),nss))+sur.rho.hf+mean(DAT$rho)
     
-    sur.tau.hf <- iAAFTSurrogateEnsemble(DAT$tau.dec.hf,nss)
+    sur.tau.hf <- .iAAFTSurrogateEnsemble(DAT$tau.dec.hf,nss)
     sur.tau <- array(data=rep(DAT$tau.dec.lf,nss),dim=c(nrow(DAT),nss))+sur.tau.hf+mean(DAT$tau)
     cat(" ok\n")
     

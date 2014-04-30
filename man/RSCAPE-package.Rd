@@ -7,11 +7,11 @@
 \details{
 \tabular{ll}{Package: \tab RSCAPE\cr
 Title: \tab R SCAPE package\cr
-Version: \tab 0.0.0.17\cr
+Version: \tab 0.1.0\cr
 Date: \tab 2013-05-06\cr
 Author: \tab Fabian Gans, Miguel Mahecha, Max-Planck-Institute for Biogeochemistry, Jena\cr
 Maintainer: \tab Fabian Gans <fgans@bgc-jena.mpg.de>\cr
-Depends: \tab R (>= 2.14.0)\cr
+Depends: \tab R (>= 3.0.0)\cr
 Imports: \tab spectral.methods, EMD, plyr, zoo, forecast, wmtsa, testthat\cr
 Suggests: \tab \cr
 License: \tab GPL-2\cr

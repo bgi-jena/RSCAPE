@@ -41,14 +41,13 @@
 
 ### use fourier phase shuffling on Xcorrelogram and
 ### rank ordering to retain the distribution of Xdistribution 
-iAAFT <- function(Xcor,Xdist=Xcor,tolerance=0.01,maxit=100,adjust.var=TRUE,
+.iAAFT <- function(Xcor,Xdist=Xcor,tolerance=0.01,maxit=100,adjust.var=TRUE,
                   zero.mean=TRUE,quiet=TRUE,diff=FALSE,
                   criterion=c("periodogram"),rel.convergence=TRUE,
                   method=c("shell"))
-  ##details<<
-  ## This function iteratively generates a surrogate time series with the same spectrum and distribution 
   
-  ##author<<
+  ### This function iteratively generates a surrogate time series with the same spectrum and distribution 
+  
   ##Henning Rust
   { 
 

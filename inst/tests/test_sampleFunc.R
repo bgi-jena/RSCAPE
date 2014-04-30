@@ -25,7 +25,7 @@ test_that("SCAPE gives reasonable results for a very simple example",{
   methods   <- c("Fourier","Spline","MA","wavMODWT")
   
   for (m in methods) {
-    res_q10 <- getQ10(Temp,R,4,method=m,M=30)
+    res_q10 <- getQ10(Temp,R,4,method=m,M=30,nss=10)
     print(res_q10$SCAPE_Q10)
     ev_q10  <- evalSens(res_q10,Rb)
     print(ev_q10$SCAPE$MEF)
@@ -36,7 +36,7 @@ test_that("SCAPE gives reasonable results for a very simple example",{
   
   R   <- Rb*exp(-Ea/(8.3144621*(Temp+273.15)))
   for (m in methods) {
-    res_Ea <- getArrhenius(Temp,R,4,method=m,M=30)
+    res_Ea <- getArrhenius(Temp,R,4,method=m,M=30,nss=10)
     ev_Ea  <- evalSens(res_Ea,Rb)
     print(ev_Ea$SCAPE$Rb$MEF)
     expect_that( (res_Ea$SCAPE_Ea<9000) && (res_Ea$SCAPE_Ea>7000), is_true())
@@ -47,7 +47,7 @@ test_that("SCAPE gives reasonable results for a very simple example",{
   Ea2<-8000
   R   <- Rb*exp(Ea2/8.3144621*(1/(Tref-T0)-1/(Temp-T0)))
   for (m in methods) {
-    res_q10 <- getLloydTaylor(Temp,R,4,method=m,M=30)
+    res_q10 <- getLloydTaylor(Temp,R,4,method=m,M=30,nss=10)
     print(res_q10$SCAPE_Ea)
     ev_q10  <- evalSens(res_q10,Rb)
     print(ev_q10$SCAPE$MEF)
