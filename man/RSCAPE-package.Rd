@@ -7,7 +7,7 @@
 \details{
 \tabular{ll}{Package: \tab RSCAPE\cr
 Title: \tab R SCAPE package\cr
-Version: \tab 0.1.0\cr
+Version: \tab 0.1.1\cr
 Date: \tab 2013-05-06\cr
 Author: \tab Fabian Gans, Miguel Mahecha, Max-Planck-Institute for Biogeochemistry, Jena\cr
 Maintainer: \tab Fabian Gans <fgans@bgc-jena.mpg.de>\cr

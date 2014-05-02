@@ -176,7 +176,7 @@
 ### use fourier phase shuffling on Xcorrelogram and
 ### rank ordering to retain the distribution of Xdistribution
 ### but here transform to gaussian, shuffle phases and retransform
-AAFT <- function(X,method=c("shell")){
+.AAFT <- function(X,method=c("shell")){
 
   ## get lenght of data set
   n <- length(X)
