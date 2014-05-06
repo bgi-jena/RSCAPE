@@ -66,7 +66,6 @@ scapedecomp=function(
     # corresponding embedding dimensions
     if (Ms==-1) M=l/2.5
     M              <- c(floor(min(Ms[1]*sf,l/3)), floor(Ms[1]*sf/3))
-browser()
     # decompose the time series    
     dat.dec    <- filterTSeriesSSA(x,
                                    borders.wl       = borders.wl,
