@@ -47,7 +47,6 @@ scapedecomp=function(
   
   if (method=="SSA") {
 #    library("spectral.methods")
-    
     # number of components for reconstruction
     n.comp          <- c(100, 100)
     
@@ -64,7 +63,7 @@ scapedecomp=function(
     var.thresh.ratio<- 0.05
     
     # corresponding embedding dimensions
-    if (Ms==-1) M=l/2.5
+    if (Ms==-1) Ms=l/2.5
     M              <- c(floor(min(Ms[1]*sf,l/3)), floor(Ms[1]*sf/3))
     # decompose the time series    
     dat.dec    <- filterTSeriesSSA(x,
