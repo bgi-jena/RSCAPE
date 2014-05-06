@@ -6,7 +6,7 @@ Author: Fabian Gans, Miguel Mahecha, Max-Planck-Institute for Biogeochemistry, J
 Maintainer: Fabian Gans <fgans@bgc-jena.mpg.de>
 Description: Package for applying the SCAPE method to estimate soil Q10 values as described in ... 
 Depends: R (>= 3.0.0)
-Imports: spectral.methods, EMD, plyr, zoo, forecast, wmtsa, testthat
+Imports: spectral.methods, EMD, plyr, zoo, forecast, wmtsa, testthat, splus2R
 Suggests: 
 License: GPL-2
 LazyLoad: yes
