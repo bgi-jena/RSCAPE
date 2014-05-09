@@ -47,7 +47,7 @@ getQ10 <-function(
 ##
 ##\deqn{Resp(i) = R_b(i) Q_{10}^\frac{T(i)-Tref}{\gamma}}{Resp(i) = R_b(i)Q10^((T(i)-Tref)/gamma)},
 ##
-##where \eqn{R_b(i)}{Rb(i)} is the time varying "basal respiration", i.e. the respiration expected at \eqn{T_{ref}}{Tref}. The convenience function getQ10 allows to extract the \eqn{Q_{10}{Q10} value minimizing the confounding factor of the time varying \eqn{R_b}{Rb}. Four different spectral methods can be used and compared. A surrogate technique (function by curtsey of Dr. Henning Rust, written in the context of Venema et al. 2006) is applied to propagate the uncertainty due to the decomposition.
+##where \eqn{R_b(i)}{Rb(i)} is the time varying "basal respiration", i.e. the respiration expected at \eqn{T_{ref}}{Tref}. The convenience function getQ10 allows to extract the \eqn{Q_{10}}{Q10} value minimizing the confounding factor of the time varying \eqn{R_b}{Rb}. Four different spectral methods can be used and compared. A surrogate technique (function by curtsey of Dr. Henning Rust, written in the context of Venema et al. 2006) is applied to propagate the uncertainty due to the decomposition.
 ##
 ##The user is strongly encouraged to use the function with caution, i.e. see critique by Graf et al. (2011).
 
@@ -83,12 +83,12 @@ getQ10 <-function(
   ##value<< 
   ##A list with elements
   ##
-  ##$SCAPE_Q10 : the estimated \eqn{Q_{10}}{Q10} with the SCAPE principle and the method chosen.
-  ##$Conv_Q10 : the conventional \eqn{Q_{10}}{Q10} (assuming constant Rb)
-  ##$DAT$SCAPE_R_pred : the SCAPE prediction of respiration 
-  ##$DAT$SCAPE_Rb : the basal respiration based on the the SCAPE principle
-  ##$DAT$Conv_R_pred : the conventional prediction of respiration 
-  ##$DAT$Conv_Rb : the conventional (constant) basal respiration
+  ##SCAPE_Q10 : the estimated \eqn{Q_{10}}{Q10} with the SCAPE principle and the method chosen.
+  ##Conv_Q10 : the conventional \eqn{Q_{10}}{Q10} (assuming constant Rb)
+  ##DAT$SCAPE_R_pred : the SCAPE prediction of respiration 
+  ##DAT$SCAPE_Rb : the basal respiration based on the the SCAPE principle
+  ##DAT$Conv_R_pred : the conventional prediction of respiration 
+  ##DAT$Conv_Rb : the conventional (constant) basal respiration
   
   return(output)
 }

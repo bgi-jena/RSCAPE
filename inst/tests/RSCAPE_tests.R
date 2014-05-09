@@ -1,5 +1,4 @@
 require(testthat)
-library("wmtsa")
 context("RSCAPE")
 
 test_that("predictR calculates correct Respiration prediction",{

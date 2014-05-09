@@ -11,8 +11,8 @@ Version: \tab 0.1.1\cr
 Date: \tab 2013-05-06\cr
 Author: \tab Fabian Gans, Miguel Mahecha, Max-Planck-Institute for Biogeochemistry, Jena\cr
 Maintainer: \tab Fabian Gans <fgans@bgc-jena.mpg.de>\cr
-Depends: \tab R (>= 3.0.0)\cr
-Imports: \tab spectral.methods, EMD, plyr, zoo, forecast, wmtsa, testthat\cr
+Depends: \tab R (>= 3.0.0), wmtsa\cr
+Imports: \tab spectral.methods, EMD, plyr, zoo, forecast, testthat\cr
 Suggests: \tab \cr
 License: \tab GPL-2\cr
 LazyLoad: \tab yes\cr}
