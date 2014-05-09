@@ -59,7 +59,7 @@ getSens <-function(
   if ((length(weights)!=length(temperature)) | (length(weights)!=length(respiration))) stop("Error: Input data must have the same length")
   
   DAT               <- data.frame(temperature,respiration,weights)
-  DAT<-testAndFillMissing(DAT,sf)
+  DAT               <- testAndFillMissing(DAT,sf)
   
   if (sd(DAT$temperature)==0 | sd(DAT$respiration)==0) {
     stop("Constant time series not allowed!")
@@ -72,6 +72,7 @@ getSens <-function(
     DAT$temperature<-DAT$temperature-273.15
   }
 
+  DAT$respiration[DAT$respiration <= 0] <-  quantile(DAT$respiration[DAT$respiration>0],0.01)                 # make sure there are no nonsense values
   
   if (sum(DAT$respiration<=0)>0) {
     warning("Some respiration data values are below 0. Please check your dataset.")
@@ -79,10 +80,9 @@ getSens <-function(
   }
   # define the weights
   DAT$weights[DAT$respiration <= 0] <- 0
-  DAT$respiration[DAT$respiration <= 0] <-  quantile(DAT$respiration[DAT$respiration>0],0.01)                 # make sure there are no nonsense values
   
   # define tau which will be decomposed  
-  DAT$tau <- gettau(temperature)
+  DAT$tau <- gettau(DAT$temperature)
   
   #if (model == "Q10") {
   #  DAT$tau <- (DAT$temperature -Tref)/gam  
@@ -143,7 +143,6 @@ getSens <-function(
       tau     <- tau[(1-lag):l]
       weights <- weights[1:(l+lag)] * weights[(1-lag):l]
     }
-    
     lmres <- lm(rho~tau-1, weights=weights)  
     
     return(list(XYZ = lmres$coefficients, Confint=confint(lmres)[2]-confint(lmres)[1]))
@@ -189,7 +188,6 @@ getSens <-function(
     output$surrogates$tau.dec.hf <- ens.tau.dec.hf
     cat(" ok\n")
   }
-  
   
   cat("Regression of SCAPE and Conventional method")
   # No surrogates but taking confidence interval of linear fit
