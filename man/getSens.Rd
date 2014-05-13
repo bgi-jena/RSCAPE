@@ -1,9 +1,10 @@
 \name{getSens}
 \alias{getSens}
-\title{Estimate $Q_{10}$ value and time varying $R_b$ from temperature and efflux time series including uncertainty.}
-\description{Function to determine the temperature sensitivity ($Q_{10}$ value) and time varying 
-basal efflux (R$_b(i)$) from a given temperature and efflux (usually respiration) time series 
-according the principle of "SCAle dependent Parameter Estimation, SCAPE" (Mahecha et al. 2010).  }
+\title{Estimate temperature sensitivty value and time varying $R_b$ from temperature and efflux time series including uncertainty.}
+\description{Function to determine the temperature sensitivity sensitivity and time varying 
+basal efflux (R$_b(i)$) from a given transformed temperature and efflux (usually respiration) time series 
+according the principle of "SCAle dependent Parameter Estimation, SCAPE" (Mahecha et al. 2010). 
+This function should not be called directly please use getQ10, getArrhenius or getLloydTaylor instead. }
 \usage{getSens(temperature, respiration, sf, gettau, fborder = 30, M = -1, 
     nss = 0, method = "Fourier", weights = NULL, lag = NULL, 
     gapFilling = TRUE, doPlot = FALSE)}
@@ -21,25 +22,25 @@ according the principle of "SCAle dependent Parameter Estimation, SCAPE" (Mahech
   \item{gapFilling}{Logical: Choose whether Gap-Filling should be applied}
   \item{doPlot}{Logical: Choose whether Surrogates should be plotted}
 }
-\details{General Function to determine the temperature sensitivity ($S$ value) and time varying basal efflux (R$_b$) from a given temperature and efflux (usually respiration) time series. 
+\details{General Function to determine the temperature sensitivity (\eqn{S}{S} value) and time varying basal efflux (\eqn{R_b}{R_b}) from a given temperature and efflux (usually respiration) time series. 
 The following general model is assumed:
 
-Resp(i) = R_b exp(S/tau),
+\eqn{Resp(i) = R_b e^\frac{S}{tau}}{Resp(i) = Rb exp(S/tau)},
 
-where $i$ is the time index. It has been shown, however, that this model is misleading when $R_b$ is varying over time which can be expected in many real world examples (e.g. Sampson et al. 2008).
+where \eqn{i}{i} is the time index. It has been shown, however, that this model is misleading when \eqn{R_b}{Rb} is varying over time which can be expected in many real world examples (e.g. Sampson et al. 2008).
 
-If $R_b$ varies slowly, i.e. with some low frequency then the "scale dependent parameter estimation, SCAPE" 
-allows us to identify this oscillatory pattern. As a consequence, the estimation of $Q_{10}$ can be substantially stabilized (Mahecha et al. 2010). The model becomes 
+If \eqn{R_b}{Rb} varies slowly, i.e. with some low frequency then the "scale dependent parameter estimation, SCAPE" 
+allows us to identify this oscillatory pattern. As a consequence, the estimation of \eqn{Q_{10}}{Q10} can be substantially stabilized (Mahecha et al. 2010). The model becomes 
 
-Resp(i) = R_b(i)Q_{10}^((T(i)-Tref)/(gamma),
+\eqn{Resp(i) = R_b(i)Q_{10}^\frac{T(i)-Tref}{gamma}}{Resp(i) = Rb(i) * Q10^((T(i)-Tref)/(gamma)},
 
-where $R_b(i)$ is the time varying "basal respiration", i.e. the respiration expected at $Tref$. The convenience function getQ10 allows to extract the $Q_{10}$ value minimizing the confounding factor of the time varying $R_b$. Four different spectral methods can be used and compared. A surrogate technique (function by curtsey of Dr. Henning Rust, written in the context of Venema et al. 2006) is applied to propagate the uncertainty due to the decomposition.
+where \eqn{R_b(i)}{Rb(i)} is the time varying "basal respiration", i.e. the respiration expected at \eqn{Tref}{Tref}. The convenience function getQ10 allows to extract the \eqn{Q_{10}}{Q10} value minimizing the confounding factor of the time varying \eqn{R_b}{Rb}. Four different spectral methods can be used and compared. A surrogate technique (function by curtsey of Dr. Henning Rust, written in the context of Venema et al. 2006) is applied to propagate the uncertainty due to the decomposition.
 
 The user is strongly encouraged to use the function with caution, i.e. see critique by Graf et al. (2011).}
 \value{A list with elements
 
-$SCAPE_Q10 : the estimated Q_{10} with the SCAPE principle and the method chosen.
-$Conv_Q10 : the conventional Q_{10} (assuming constant Rb)
+$SCAPE_Q10 : the estimated \eqn{Q_{10}}{Q10} with the SCAPE principle and the method chosen.
+$Conv_Q10 : the conventional \eqn{Q_{10}}{Q10} (assuming constant Rb)
 $DAT$SCAPE_R_pred : the SCAPE prediction of respiration 
 $DAT$SCAPE_Rb : the basal respiration based on the the SCAPE principle
 $DAT$Conv_R_pred : the conventional prediction of respiration 
