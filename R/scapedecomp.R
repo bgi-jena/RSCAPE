@@ -16,7 +16,7 @@
 #
 scapedecomp=function(
   ##title<< Decompose a signal into given frequency bands 
-  ##description<< Decompose a signal into given frequency bands using SSA, EMD, Fourier or MA-Filter   
+  ##description<< Decompose a signal into given frequency bands using SSA, EMD, Fourier, MA-Filter or Wavelets  
   x, ##<< numeric vector: time series
   sf, ##<< numeric: sampling frequency (samples per day)
   fborder, ##<< numeric: boundary time scale (in days)
