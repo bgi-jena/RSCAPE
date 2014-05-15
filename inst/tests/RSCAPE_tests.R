@@ -10,6 +10,21 @@ test_that("predictR calculates correct Respiration prediction",{
 		expect_that( predictR(Rb,S,tau,1)[2:5], equals(Rb[2:5]*exp(S*tau[1:4])) )
 	})
 
+test_that("Decomposition works as expected",{
+  #Generate fast and slow oscillations
+  N  <- 2000
+  x  <- seq(from=0,by=0.25,length.out=N)
+  y1 <- 10*sin(2*pi*x/100)
+  y2 <- sin(2*pi*x)
+  y  <- y1+y2
+  fborder=30
+  methods   <- c("Fourier","Spline","MA","wavMODWT")
+  for (m in methods) {
+    r  <- scapedecomp(x=y,sf=4,fborder=fborder,method="MA")
+    expect_less_than(mean((y2[fborder:(N-fborder)]-r[fborder:(N-fborder),2])^2),1.1)
+  }
+})
+
 test_that("SCAPE gives reasonable results for a very simple example",{
   t   <- seq(0,365,by=0.25)
   Temp<- 10 + 3*sin(2*pi*t)+10*sin(2*pi*t/365)
