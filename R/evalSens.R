@@ -55,9 +55,7 @@ evalSens <-function(
   rho_pred_conv <- log(SCAPE_res$DAT$Conv_R_pred) #Define rho from SCAPE prediction
   rho <- log(SCAPE_res$DAT$respiration) #Define rho from SCAPE prediction
   # Then do spectral decomposition of the prediction
-  
   l<-length(rho)
-  
   
   # Decompose original resp
   x <- scapedecomp(x = SCAPE_res$DAT$respiration,sf=sf,fborder=fborder,method=method,Ms=M)
